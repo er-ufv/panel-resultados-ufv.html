@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>UFV · Panel de resultados</title>
+
+<!--
+  ============================================================================
+  INSTRUCCIONES PARA EDUAR (borra este comentario cuando ya no lo necesites)
+  ============================================================================
+  1) LOGO: ya va incrustado en el propio archivo (no depende de ninguna
+     carpeta "assets"), así que se ve igual aquí, en tu ordenador o en
+     GitHub Pages.
+
+  2) VISTA PANORÁMICA PARA PROYECTOR: este panel está pensado para verse en
+     tu ordenador (pantalla ancha) y proyectarlo en clase, no para el móvil de
+     cada estudiante. Las gráficas y tablas son pequeñas tarjetas ("tiles")
+     que se acomodan solas en una cuadrícula densa, agrupadas por bloque
+     (A/B/C/D, con una franja de color) — así caben muchas a la vez y la
+     clase puede ver casi todo de un vistazo, sin tener que hacer scroll por
+     cada gráfica una por una. En pantallas más estrechas las tarjetas se
+     reorganizan en menos columnas automáticamente.
+
+  3) DATOS EN VIVO: pega la URL de tu Apps Script (la misma que conecta el
+     formulario) en la constante DATA_URL, dentro del <script> al final del
+     archivo. Mientras esté vacía, el panel se rellena solo con datos de
+     ejemplo generados aleatoriamente, con una etiqueta "Datos de ejemplo"
+     junto al título — los números y correlaciones de ejemplo son
+     aleatorios y no significan nada, solo sirven para revisar el diseño.
+
+  4) El panel vuelve a pedir los datos cada 15 segundos automáticamente
+     (mientras la pestaña esté abierta) y también tiene un botón "Actualizar
+     ahora".
+
+  5) DESPLIEGUE: sube este archivo junto con encuesta-ufv-vida-universitaria.html
+     al mismo repositorio de GitHub Pages (ya no hace falta la carpeta assets/
+     para el logo).
+  ============================================================================
+-->
+
+<style>
+  :root{
+    /* ---- Marca UFV (cromo de la interfaz) ---- */
+    --ufv-blue: #003865;
+    --ufv-blue-light: #e8f0f6;
+    --ufv-accent: #c2001f;
+    --text: #1b2430;
+    --muted: #5b6b7a;
+    --border: #d7dee5;
+    --bg: #f4f7fa;
+    --ok: #1e7e34;
+    --radius: 16px;
+
+    /* ---- Paleta validada para gráficas (dataviz) ---- */
+    --series-1: #2a78d6;       /* azul — serie principal */
+    --series-1-light: #b7d3f6; /* paso 150 del ramp azul — cajas/zonas */
+    --series-1-dark: #184f95;  /* paso 600 del ramp azul — mediana/énfasis */
+    --series-2: #eb6834;       /* naranja — segunda serie */
+    --series-3: #1baf7a;       /* aqua — tercera serie */
+    --ink-primary: #0b0b0b;
+    --ink-secondary: #52514e;
+    --ink-muted: #898781;
+    --gridline: #e1e0d9;
+    --baseline: #c3c2b7;
+  }
+  *{ box-sizing: border-box; }
+  html{ font-size: 16px; }
+  body{
+    margin:0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding-bottom: 60px;
+  }
+  header{
+    background: var(--ufv-blue);
+    color: #fff;
+    padding: 18px 24px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.14);
+  }
+  .header-inner{ max-width: 1360px; margin: 0 auto; }
+  .header-row{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  #logo{ height: 46px; width: auto; background:#fff; border-radius:8px; padding:5px 8px; }
+  .logo-placeholder{
+    display:inline-flex; align-items:center; justify-content:center;
+    height:46px; padding:0 14px; background:#fff; color:var(--ufv-blue);
+    font-weight:800; letter-spacing:0.5px; border-radius:8px; font-size:16px;
+  }
+  header h1{ font-size: 21px; margin: 0; line-height:1.3; font-weight:700; }
+  header p{ margin: 3px 0 0; font-size: 13.5px; opacity: 0.88; }
+
+  .status-row{
+    margin-top:12px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    flex-wrap:wrap;
+  }
+  .status-left{ display:flex; align-items:center; gap:10px; font-size:12.5px; opacity:0.9; }
+  .demo-badge{
+    display:none;
+    background: rgba(255,255,255,0.18);
+    border-radius:999px; padding:4px 12px; font-size:12px; font-weight:600;
+  }
+  .demo-badge.show{ display:inline-flex; }
+  #btnRefrescar{
+    background: rgba(255,255,255,0.16);
+    border: 1px solid rgba(255,255,255,0.4);
+    color:#fff; border-radius:999px; padding:8px 16px;
+    font-size:13px; cursor:pointer; font-family:inherit;
+  }
+  #btnRefrescar:active{ transform: scale(0.97); }
+
+  .tabs-scroll{
+    margin-top:14px;
+    display:flex; gap:8px;
+    overflow-x:auto;
+    padding-bottom:2px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs-scroll::-webkit-scrollbar{ height:4px; }
+  .tab-btn{
+    flex: 0 0 auto;
+    padding: 9px 18px;
+    border-radius:999px;
+    border: 1.5px solid rgba(255,255,255,0.42);
+    background: transparent;
+    color:#fff;
+    font-size:14.5px; font-weight:600;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .tab-btn.is-checked{ background:#fff; color: var(--ufv-blue); border-color:#fff; }
+
+  main{ max-width: 1760px; margin: 0 auto; padding: 16px 20px; }
+
+  .kpi-row{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:10px;
+    margin-bottom: 14px;
+  }
+  @media (min-width: 640px){ .kpi-row{ grid-template-columns: repeat(4, 1fr); } }
+  .kpi-tile{
+    background:#fff; border:1px solid var(--border); border-radius: 12px;
+    padding: 11px 12px;
+    text-align:center;
+  }
+  .kpi-value{ font-size: 24px; font-weight:700; color: var(--ufv-blue); line-height:1.1; }
+  .kpi-label{ font-size: 11px; color: var(--muted); margin-top:2px; line-height:1.25; }
+
+  /* ---- Vista panorámica: tarjetas pequeñas en cuadrícula densa, agrupadas
+     por bloque con una franja de cabecera de color ---- */
+  .tile-section{ margin-bottom: 14px; }
+  .section-head{
+    display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
+    padding: 6px 2px; margin-bottom: 8px;
+  }
+  .section-badge{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:6px; color:#fff;
+    font-size:12px; font-weight:800; flex:0 0 auto;
+  }
+  .section-title{ font-size:13.5px; font-weight:700; color: var(--text); }
+  .section-sub{ font-size:11px; color: var(--muted); }
+  .tile-section.block-a .section-badge{ background: var(--series-1); }
+  .tile-section.block-b .section-badge{ background: var(--series-2); }
+  .tile-section.block-c .section-badge{ background: var(--series-3); }
+  .tile-section.block-d .section-badge{ background: #4a3aa7; }
+
+  .tile-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+    gap: 10px;
+    align-items: start;
+  }
+  .tile{
+    background:#fff; border:1px solid var(--border); border-radius: 12px;
+    padding: 10px 12px 12px;
+    min-width: 0;
+  }
+  .tile-wide{ grid-column: span 2; }
+  .tile h3{ font-size:12px; color: var(--text); margin: 0 0 2px; font-weight:700; line-height:1.25; }
+  .tile .tile-note{ font-size:10px; color:var(--muted); margin:0 0 6px; line-height:1.3; }
+
+  section.card{
+    background:#fff; border:1px solid var(--border); border-radius: var(--radius);
+    padding: 16px 18px 18px;
+  }
+  section.card h2{ font-size:15.5px; color: var(--ufv-blue); margin: 0 0 3px; }
+  section.card .card-sub{ font-size:12px; color: var(--muted); margin: 0 0 12px; }
+
+  .chart-box{ width:100%; }
+
+  .table-scroll{ overflow-x:auto; -webkit-overflow-scrolling: touch; }
+  table.freq-table, table.contingency-table{
+    border-collapse: collapse;
+    width:100%;
+    font-size:11.5px;
+  }
+  table.freq-table th, table.freq-table td,
+  table.contingency-table th, table.contingency-table td{
+    padding: 4px 6px;
+    border-bottom: 1px solid var(--gridline);
+    text-align:left;
+    white-space: nowrap;
+  }
+  table.freq-table th{ color: var(--ink-secondary); font-weight:600; font-size:10px; }
+  table.freq-table .totals-row td{ font-weight:700; border-top:1.5px solid var(--border); }
+  table.contingency-table{ font-size:12px; }
+  table.contingency-table th{ background: var(--bg); color: var(--ink-secondary); position:sticky; top:0; }
+  table.contingency-table th:first-child, table.contingency-table td:first-child{
+    position:sticky; left:0; background:#fff; font-weight:600; z-index:1;
+  }
+  table.contingency-table td{ text-align:center; }
+  table.contingency-table .cell-pct{ display:block; font-size:10px; color:var(--ink-muted); }
+  table.contingency-table .totals-col{ font-weight:700; background: var(--bg); }
+
+  .cont-controls{
+    display:grid; grid-template-columns: 1fr; gap:12px; margin-bottom:16px;
+  }
+  @media (min-width: 480px){ .cont-controls{ grid-template-columns: 1fr 1fr; } }
+  .cont-controls label{ font-size:12.5px; color:var(--muted); display:block; margin-bottom:5px; }
+  .cont-controls select{
+    width:100%; padding:10px 11px; font-size:14px;
+    border:1.5px solid var(--border); border-radius:10px; background:#fff; font-family:inherit;
+  }
+
+  /* ---- Leyendas de gráficas ---- */
+  .chart-legend{ margin-top:6px; display:flex; flex-direction:column; gap:3px; }
+  .legend-row{ display:flex; align-items:center; gap:6px; font-size:10.5px; color: var(--ink-secondary); }
+  .legend-row .legend-label{ flex:1; }
+  .legend-row .legend-value{ font-weight:600; color: var(--ink-primary); }
+  .chart-legend-inline{ display:flex; gap:10px; flex-wrap:wrap; margin-top:5px; font-size:10.5px; color:var(--ink-secondary); }
+  .legend-row-inline{ display:inline-flex; align-items:center; gap:5px; }
+  .legend-swatch{ width:9px; height:9px; border-radius:3px; display:inline-block; flex:0 0 auto; }
+
+  .corr-stat{
+    display:inline-block;
+    background: var(--ufv-blue-light);
+    color: var(--ufv-blue);
+    font-weight:700;
+    font-size: 11.5px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    margin-bottom: 4px;
+  }
+
+  .chart-tooltip{
+    display:none;
+    position: fixed;
+    z-index: 1000;
+    background: var(--ufv-blue);
+    color:#fff;
+    font-size: 12.5px;
+    padding: 7px 11px;
+    border-radius: 8px;
+    pointer-events:none;
+    line-height:1.4;
+    max-width: 240px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+  }
+
+  footer{
+    max-width:1360px; margin: 28px auto 0; padding: 0 24px;
+    font-size: 12px; color: var(--muted); text-align:center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-row">
+      <img id="logo" src="data:image/png;base64,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" alt="Universidad Francisco de Vitoria"
+           onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='inline-flex';">
+      <span id="logo-fallback" class="logo-placeholder" style="display:none;">UFV</span>
+      <div>
+        <h1>Panel de resultados — ¿La universidad es como la imaginabas?</h1>
+        <p>Facultad de Psicología y Educación · Fundamentos de Investigación en Psicología · Tema 3</p>
+      </div>
+    </div>
+
+    <div class="status-row">
+      <div class="status-left">
+        <span id="ultimaActualizacion">Sin datos todavía</span>
+        <span class="demo-badge" id="demoBadge">Datos de ejemplo (aleatorios, solo para revisar el diseño)</span>
+      </div>
+      <button type="button" id="btnRefrescar">Actualizar ahora</button>
+    </div>
+
+    <div class="tabs-scroll" id="tabsRow">
+      <button type="button" class="tab-btn is-checked" data-group="A">Grupo A</button>
+      <button type="button" class="tab-btn" data-group="B">Grupo B</button>
+      <button type="button" class="tab-btn" data-group="C">Grupo C</button>
+      <button type="button" class="tab-btn" data-group="D">Grupo D</button>
+      <button type="button" class="tab-btn" data-group="E">Grupo E</button>
+      <button type="button" class="tab-btn" data-group="F">Grupo F</button>
+      <button type="button" class="tab-btn" data-group="AP1">AP1</button>
+      <button type="button" class="tab-btn" data-group="Todos">Todos los grupos</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <!-- BLOQUE A -->
+  <div class="tile-section block-a">
+    <div class="section-head">
+      <span class="section-badge">A</span>
+      <span class="section-title">Sobre las personas encuestadas</span>
+      <span class="section-sub">— variables categóricas: quiénes son</span>
+    </div>
+    <div class="tile-grid">
+      <div class="tile">
+        <h3>Sexo</h3>
+        <div class="chart-box" id="chartSexo"></div>
+      </div>
+      <div class="tile">
+        <h3>¿En qué universidad estudia?</h3>
+        <div class="chart-box" id="chartA1"></div>
+      </div>
+      <div class="tile">
+        <h3>Facultad</h3>
+        <p class="tile-note">Ordenada de mayor a menor frecuencia; Acum. = % acumulado hasta esa fila.</p>
+        <div class="table-scroll" id="tableA2"></div>
+      </div>
+      <div class="tile">
+        <h3>Curso</h3>
+        <div class="chart-box" id="chartA3"></div>
+      </div>
+      <div class="tile tile-wide">
+        <h3>¿De dónde sacaron la idea de la vida universitaria? (hasta 3 opciones, por prioridad)</h3>
+        <p class="tile-note">Longitud = puntuación de prioridad (3 pts si fue 1ª opción, 2 si 2ª, 1 si 3ª) — no solo cuántas veces se mencionó, sino cuánto peso le dieron.</p>
+        <div class="chart-box" id="chartA4"></div>
+        <div class="table-scroll" id="tableA4"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOQUE B -->
+  <div class="tile-section block-b">
+    <div class="section-head">
+      <span class="section-badge">B</span>
+      <span class="section-title">Hábitos: expectativa vs. realidad</span>
+      <span class="section-sub">— variables cuantitativas: medias, dispersión y posición</span>
+    </div>
+    <div class="tile-grid">
+      <div class="tile">
+        <h3>Horas de estudio: imaginadas vs. reales (media semanal)</h3>
+        <div class="chart-box" id="chartB1B2"></div>
+      </div>
+      <div class="tile tile-wide">
+        <h3>Distribución de horas de estudio reales (con percentiles)</h3>
+        <p class="tile-note">Curva de densidad estimada — se espera una forma aproximadamente normal. Línea continua = mediana; discontinuas = P25 y P75. Pasa el ratón por la curva para ver en qué percentil cae cualquier valor.</p>
+        <div class="chart-box" id="chartHorasDensidad"></div>
+      </div>
+      <div class="tile">
+        <h3>¿Dónde se sitúa cada persona? (real − imaginado, en horas)</h3>
+        <p class="tile-note">Caja = 50% central (Q1–Q3); línea = mediana; puntos = cada persona.</p>
+        <div class="chart-box" id="chartDiffPosition"></div>
+      </div>
+      <div class="tile">
+        <h3>Resumen numérico — fiestas y socialización</h3>
+        <div class="table-scroll" id="statsB"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOQUE C -->
+  <div class="tile-section block-c">
+    <div class="section-head">
+      <span class="section-badge">C</span>
+      <span class="section-title">Percepciones</span>
+      <span class="section-sub">— variables ordinales: frecuencias acumuladas</span>
+    </div>
+    <div class="tile-grid">
+      <div class="tile tile-wide">
+        <h3>Puntuación global de satisfacción (suma de 4 ítems, escala 4–28)</h3>
+        <p class="tile-note">Suma de: satisfacción general + coincide con lo imaginado + coincide con las películas + extrañará la universidad (cada uno 1–7). Un índice compuesto resume mejor la percepción global que varias tablas casi idénticas por separado.</p>
+        <div class="chart-box" id="chartSatisfaccionSuma"></div>
+      </div>
+      <div class="tile">
+        <h3>Sorpresa general</h3>
+        <div class="table-scroll" id="tableC3"></div>
+      </div>
+      <div class="tile">
+        <h3>¿Extrañará la vida universitaria? (1–7)</h3>
+        <p class="tile-note">Ejemplo de cómo leer un ítem individual: gráfico de barras + tabla de frecuencias con acumulada.</p>
+        <div class="chart-box" id="chartC4"></div>
+        <div class="table-scroll" id="tableC4"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOQUE D — Comparaciones y correlaciones -->
+  <div class="tile-section block-d">
+    <div class="section-head">
+      <span class="section-badge">D</span>
+      <span class="section-title">Comparaciones y correlaciones</span>
+      <span class="section-sub">— relación entre dos variables cuantitativas</span>
+    </div>
+    <div class="tile-grid">
+      <div class="tile tile-wide">
+        <h3>¿Quién estudia más horas — hombres o mujeres? (densidad)</h3>
+        <p class="tile-note">Compara la forma de la distribución de horas de estudio reales entre sexos, no solo la media.</p>
+        <div class="chart-box" id="chartDensitySexo"></div>
+      </div>
+      <div class="tile">
+        <h3>Fiestas del último mes vs. satisfacción general</h3>
+        <div id="rCorrFiestas" class="corr-stat">r = —</div>
+        <div class="chart-box" id="chartCorrFiestas"></div>
+      </div>
+      <div class="tile">
+        <h3>Horas de estudio reales vs. satisfacción general</h3>
+        <div id="rCorrHoras" class="corr-stat">r = —</div>
+        <div class="chart-box" id="chartCorrHoras"></div>
+      </div>
+    </div>
+    <p class="tile-note" style="margin:8px 2px 0;">r = coeficiente de correlación de Pearson (de −1 a 1). Con los datos de ejemplo el valor es aleatorio: no lo toméis como un hallazgo real hasta que esté conectado con vuestros datos.</p>
+  </div>
+
+  <!-- CONTINGENCIA -->
+  <section class="card">
+    <h2>Explorador de tablas de contingencia</h2>
+    <p class="card-sub">Cruza dos variables categóricas u ordinales — recuento y % por fila. Úsalo para profundizar después del vistazo general de arriba.</p>
+
+    <div class="cont-controls">
+      <div>
+        <label for="contX">Variable en columnas</label>
+        <select id="contX"></select>
+      </div>
+      <div>
+        <label for="contY">Variable en filas</label>
+        <select id="contY"></select>
+      </div>
+    </div>
+
+    <div id="contingencyContainer"></div>
+  </section>
+
+</main>
+
+<footer>
+  Universidad Francisco de Vitoria — Facultad de Psicología y Educación. Panel de uso docente.
+</footer>
+
+<script>
+  // ==========================================================================
+  // Pega aquí la URL de tu Apps Script (la misma que usa el formulario de
+  // encuesta, endpoint doGet). Mientras esté vacía, el panel usa datos de
+  // ejemplo generados en el propio navegador.
+  // ==========================================================================
+  const DATA_URL = "https://script.google.com/macros/s/AKfycbxn_OazVrW9QfZC4Lw0EYRBW-c6F99Bi1Qfg3uyoua4nZzi27drxJNUA2fgDgJ5sVDIsg/exec";
+
+  const GRUPOS = ['A','B','C','D','E','F','AP1'];
+  const CATEGORICAL_COLORS = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#4a3aa7', '#e34948', '#898781'];
+
+  const FIELD_META = {
+    sexo: { label: 'Sexo', order: ['Hombre','Mujer','Prefiero no decirlo'] },
+    a1: { label: '¿En qué universidad estudia?', order: ['Estudiante UFV','Estudiante de otra universidad'] },
+    a2: { label: 'Facultad', order: [
+      'Facultad de Derecho, Empresa y Gobierno','Facultad de Comunicación','Facultad de Ciencias Experimentales',
+      'Facultad de Ciencias de la Salud','Escuela Politécnica Superior','Facultad de Psicología y Educación',
+      'Facultad de Medicina','No sabe a qué facultad pertenece'
+    ]},
+    a3: { label: 'Curso', order: ['1º','2º','3º','4º','5º / Máster','Doctorado','No aplica'] },
+    a4_mas_importante: { label: 'Fuente principal de expectativas', order: [
+      'Películas o series','Libros o novelas','Redes sociales','Lo que contaban amigos o compañeros',
+      'Lo que contaban familiares','Información oficial de la universidad','Orientador/a académico o del colegio',
+      'Ferias o salones de orientación universitaria','No tenía expectativas previas'
+    ]},
+    satisfaccion_general: { label: 'Satisfacción general (1-7)', order: ['1','2','3','4','5','6','7'] },
+    c1_coincide_con_lo_imaginado: { label: 'Coincide con lo imaginado (1-7)', order: ['1','2','3','4','5','6','7'] },
+    c2_coincide_con_peliculas: { label: 'Coincide con las películas (1-7)', order: ['1','2','3','4','5','6','7'] },
+    c3_sorpresa: { label: 'Sorpresa', order: ['Muy negativa','Algo negativa','Ninguna sorpresa','Algo positiva','Muy positiva'] },
+    c4_extranara_vida_universitaria: { label: 'Extrañará la universidad (1-7)', order: ['1','2','3','4','5','6','7'] }
+  };
+
+  const CONTINUOUS_META = {
+    b3_fiestas_ultimo_mes: { label: 'Fiestas en el último mes' },
+    b4_horas_socializar: { label: 'Horas de socializar / semana' }
+  };
+
+  // -------------------------------------------------------------------------
+  // Estado
+  // -------------------------------------------------------------------------
+  let allData = {};
+  let activeGroup = 'A';
+
+  // -------------------------------------------------------------------------
+  // Estadística
+  // -------------------------------------------------------------------------
+  function frequencyTable(values, order){
+    const counts = {};
+    values.forEach(function(v){ counts[v] = (counts[v]||0) + 1; });
+    const total = values.length;
+    const extra = Object.keys(counts).filter(function(k){ return order.indexOf(k) === -1; });
+    const keys = order.concat(extra);
+    return keys.map(function(k){
+      return { label: k, abs: counts[k]||0, rel: total ? (counts[k]||0)/total : 0 };
+    });
+  }
+
+  function percentile(sortedArr, p){
+    if (!sortedArr.length) return null;
+    const idx = (p/100) * (sortedArr.length - 1);
+    const lo = Math.floor(idx), hi = Math.ceil(idx);
+    if (lo === hi) return sortedArr[lo];
+    return sortedArr[lo] + (sortedArr[hi]-sortedArr[lo]) * (idx - lo);
+  }
+
+  // % de valores <= v — el "percentil" en el que cae un valor cualquiera,
+  // no solo los percentiles de referencia (25/50/75).
+  function percentileRank(values, v){
+    if (!values.length) return 0;
+    const countLE = values.filter(function(x){ return x <= v; }).length;
+    return countLE/values.length*100;
+  }
+
+  function numericStats(values){
+    const arr = values.slice().sort(function(a,b){ return a-b; });
+    const n = arr.length;
+    if (!n) return null;
+    const mean = arr.reduce(function(s,v){ return s+v; }, 0) / n;
+    const freq = {};
+    let mode = arr[0], modeCount = 0;
+    arr.forEach(function(v){ freq[v] = (freq[v]||0)+1; if (freq[v] > modeCount){ modeCount = freq[v]; mode = v; } });
+    return {
+      n: n, mean: mean,
+      median: percentile(arr, 50), q1: percentile(arr, 25), q3: percentile(arr, 75),
+      min: arr[0], max: arr[n-1], mode: mode
+    };
+  }
+
+  function pearsonR(xs, ys){
+    const n = xs.length;
+    if (n < 2) return null;
+    const mx = xs.reduce(function(a,b){ return a+b; }, 0) / n;
+    const my = ys.reduce(function(a,b){ return a+b; }, 0) / n;
+    let num = 0, dx2 = 0, dy2 = 0;
+    for (let i = 0; i < n; i++){
+      const dx = xs[i]-mx, dy = ys[i]-my;
+      num += dx*dy; dx2 += dx*dx; dy2 += dy*dy;
+    }
+    const denom = Math.sqrt(dx2*dy2);
+    return denom ? num/denom : 0;
+  }
+
+  function linearRegression(xs, ys){
+    const n = xs.length;
+    const mx = xs.reduce(function(a,b){ return a+b; }, 0) / n;
+    const my = ys.reduce(function(a,b){ return a+b; }, 0) / n;
+    let num = 0, den = 0;
+    for (let i = 0; i < n; i++){ num += (xs[i]-mx)*(ys[i]-my); den += (xs[i]-mx)*(xs[i]-mx); }
+    const slope = den ? num/den : 0;
+    return { slope: slope, intercept: my - slope*mx };
+  }
+
+  function silvermanBandwidth(values){
+    const n = values.length;
+    if (n < 2) return 1;
+    const mean = values.reduce(function(a,b){ return a+b; }, 0) / n;
+    const variance = values.reduce(function(a,b){ return a + Math.pow(b-mean,2); }, 0) / (n-1);
+    const sd = Math.sqrt(variance) || 1;
+    return Math.max(0.9 * sd * Math.pow(n, -1/5), 0.4);
+  }
+
+  function kdeCurve(values, xMin, xMax, steps){
+    const bw = silvermanBandwidth(values);
+    const pts = [];
+    for (let i = 0; i <= steps; i++){
+      const x = xMin + (xMax-xMin)*i/steps;
+      const y = values.reduce(function(s,v){ return s + Math.exp(-0.5*Math.pow((x-v)/bw,2)); }, 0) / (values.length*bw*Math.sqrt(2*Math.PI));
+      pts.push({ x: x, y: y });
+    }
+    return pts;
+  }
+
+  // -------------------------------------------------------------------------
+  // Tooltip compartido
+  // -------------------------------------------------------------------------
+  function getTooltip(){
+    let tip = document.getElementById('chartTooltip');
+    if (!tip){
+      tip = document.createElement('div');
+      tip.id = 'chartTooltip';
+      tip.className = 'chart-tooltip';
+      document.body.appendChild(tip);
+    }
+    return tip;
+  }
+  function showTooltip(evt, html){
+    const tip = getTooltip();
+    tip.innerHTML = html;
+    tip.style.display = 'block';
+    tip.style.left = Math.min(evt.clientX + 12, window.innerWidth - 250) + 'px';
+    tip.style.top = (evt.clientY + 14) + 'px';
+  }
+  function hideTooltip(){
+    const tip = document.getElementById('chartTooltip');
+    if (tip) tip.style.display = 'none';
+  }
+
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  function svgEl(tag, attrs){
+    const el = document.createElementNS(SVGNS, tag);
+    Object.entries(attrs || {}).forEach(function(entry){ el.setAttribute(entry[0], entry[1]); });
+    return el;
+  }
+  function clearEl(el){ while (el.firstChild) el.removeChild(el.firstChild); }
+
+  // -------------------------------------------------------------------------
+  // Gráfico de barras horizontales (categorías con etiquetas largas)
+  // -------------------------------------------------------------------------
+  function renderHBarChart(container, items){
+    clearEl(container);
+    const width = Math.max(container.clientWidth || 260, 220);
+    const rowH = 26;
+    const labelW = 112;
+    const valueW = 48;
+    const barMaxW = width - labelW - valueW - 6;
+    const height = items.length * rowH + 4;
+    const maxVal = Math.max(1, ...items.map(function(i){ return i.value; }));
+    const svg = svgEl('svg', { viewBox: '0 0 ' + width + ' ' + height, width: '100%', height: height });
+
+    items.forEach(function(it, i){
+      const y = i * rowH;
+      const label = svgEl('text', { x: 0, y: y + rowH/2 + 3.5, 'font-size': 10.5, fill: 'var(--ink-secondary)' });
+      const shortLabel = it.label.length > 20 ? it.label.slice(0, 19) + '…' : it.label;
+      label.textContent = shortLabel;
+      svg.appendChild(label);
+
+      const barW = maxVal ? (it.value / maxVal) * barMaxW : 0;
+      const rect = svgEl('rect', {
+        x: labelW, y: y + (rowH-14)/2, width: Math.max(barW, it.value>0?3:0), height: 14, rx: 3,
+        fill: 'var(--series-1)', style: 'cursor:pointer;'
+      });
+      rect.addEventListener('mousemove', function(e){ showTooltip(e, '<strong>' + it.label + '</strong><br>' + it.value + ' personas (' + (it.pct*100).toFixed(1) + '%)'); });
+      rect.addEventListener('mouseleave', hideTooltip);
+      svg.appendChild(rect);
+
+      const valueLabel = svgEl('text', { x: labelW + barW + 5, y: y + rowH/2 + 3.5, 'font-size': 10, fill: 'var(--ink-primary)' });
+      valueLabel.textContent = it.value + ' (' + (it.pct*100).toFixed(0) + '%)';
+      svg.appendChild(valueLabel);
+    });
+
+    container.appendChild(svg);
+  }
+
+  // -------------------------------------------------------------------------
+  // Gráfico de columnas verticales (escalas ordinales cortas, 1-7)
+  // -------------------------------------------------------------------------
+  function renderVBarChart(container, items){
+    clearEl(container);
+    const width = Math.max(container.clientWidth || 260, 220);
+    const height = 140;
+    const padBottom = 22, padTop = 14;
+    const n = items.length;
+    const gap = 5;
+    const barW = Math.min(32, (width - (n+1)*gap) / n);
+    const usableW = n*barW + (n+1)*gap;
+    const offsetX = (width - usableW) / 2;
+    const maxVal = Math.max(1, ...items.map(function(i){ return i.value; }));
+    const svg = svgEl('svg', { viewBox: '0 0 ' + width + ' ' + height, width: '100%', height: height });
+
+    const base = svgEl('line', { x1: offsetX, x2: offsetX+usableW, y1: height-padBottom, y2: height-padBottom, stroke: 'var(--baseline)', 'stroke-width': 1 });
+    svg.appendChild(base);
+
+    items.forEach(function(it, i){
+      const x = offsetX + gap + i*(barW+gap);
+      const h = maxVal ? (it.value / maxVal) * (height - padBottom - padTop) : 0;
+      const y = height - padBottom - h;
+      const rect = svgEl('rect', { x: x, y: y, width: barW, height: Math.max(h, it.value>0?2:0), rx: 3, fill: 'var(--series-1)', style: 'cursor:pointer;' });
+      rect.addEventListener('mousemove', function(e){ showTooltip(e, '<strong>' + it.label + '</strong><br>' + it.value + ' personas (' + (it.pct*100).toFixed(1) + '%)'); });
+      rect.addEventListener('mouseleave', hideTooltip);
+      svg.appendChild(rect);
+
+      const lbl = svgEl('text', { x: x+barW/2, y: height-padBottom+13, 'font-size': 10.5, 'text-anchor': 'middle', fill: 'var(--ink-muted)' });
+      lbl.textContent = it.label;
+      svg.appendChild(lbl);
+
+      if (it.value > 0){
+        const vlbl = svgEl('text', { x: x+barW/2, y: y-4, 'font-size': 9.5, 'text-anchor': 'middle', fill: 'var(--ink-secondary)' });
+        vlbl.textContent = it.value;
+        svg.appendChild(vlbl);
+      }
+    });
+
+    container.appendChild(svg);
+  }
+
+  // -------------------------------------------------------------------------
+  // Barras horizontales apiladas por rango (elección múltiple jerárquica,
+  // hasta 3 opciones) — la longitud total es una puntuación de prioridad
+  // (3/2/1 puntos según se eligiera como 1ª/2ª/3ª opción), y cada segmento
+  // muestra qué parte de esa puntuación viene de cada rango.
+  // -------------------------------------------------------------------------
+  const RANK_COLORS = [CATEGORICAL_COLORS[0], CATEGORICAL_COLORS[1], CATEGORICAL_COLORS[2]];
+  const RANK_LABELS = ['Elegida como 1ª opción', 'Elegida como 2ª opción', 'Elegida como 3ª opción'];
+  const RANK_WEIGHTS = [3, 2, 1];
+
+  function computeRankedScores(rows, keyFirst, keySecond, keyThird, order){
+    return order.map(function(opt){
+      const c1 = rows.filter(function(r){ return r[keyFirst] === opt; }).length;
+      const c2 = rows.filter(function(r){ return r[keySecond] === opt; }).length;
+      const c3 = rows.filter(function(r){ return r[keyThird] === opt; }).length;
+      const score = RANK_WEIGHTS[0]*c1 + RANK_WEIGHTS[1]*c2 + RANK_WEIGHTS[2]*c3;
+      return { label: opt, counts: [c1, c2, c3], score: score, total: c1 + c2 + c3 };
+    }).sort(function(a, b){ return b.score - a.score; });
+  }
+
+  function renderRankedBarChart(container, items){
+    clearEl(container);
+    const width = Math.max(container.clientWidth || 340, 280);
+    const rowH = 28;
+    const labelW = 168;
+    const scoreW = 26;
+    const barMaxW = width - labelW - scoreW - 8;
+    const height = items.length * rowH + 4;
+    const maxScore = Math.max(1, ...items.map(function(i){ return i.score; }));
+    const svg = svgEl('svg', { viewBox: '0 0 ' + width + ' ' + height, width: '100%', height: height });
+
+    items.forEach(function(it, i){
+      const y = i * rowH;
+      const label = svgEl('text', { x: 0, y: y + rowH/2 + 3.5, 'font-size': 10.5, fill: 'var(--ink-secondary)' });
+      label.textContent = it.label.length > 27 ? it.label.slice(0, 26) + '…' : it.label;
+      svg.appendChild(label);
+
+      const totalBarW = maxScore ? (it.score / maxScore) * barMaxW : 0;
+      const barY = y + (rowH - 15) / 2;
+      let x = labelW;
+      it.counts.forEach(function(c, ri){
+        if (!c) return;
+        const contribution = RANK_WEIGHTS[ri] * c;
+        const segW = it.score ? (contribution / it.score) * totalBarW : 0;
+        const rect = svgEl('rect', { x: x, y: barY, width: Math.max(segW - 1.5, 1.5), height: 15, rx: 2.5, fill: RANK_COLORS[ri], style: 'cursor:pointer;' });
+        rect.addEventListener('mousemove', function(e){ showTooltip(e, '<strong>' + it.label + '</strong><br>' + RANK_LABELS[ri] + ': ' + c + ' personas'); });
+        rect.addEventListener('mouseleave', hideTooltip);
+        svg.appendChild(rect);
+        x += segW;
+      });
+
+      const scoreLabel = svgEl('text', { x: labelW + totalBarW + 6, y: y + rowH/2 + 3.5, 'font-size': 10.5, 'font-weight': 700, fill: 'var(--ink-primary)' });
+      scoreLabel.textContent = it.score;
+      svg.appendChild(scoreLabel);
+    });
+
+    container.appendChild(svg);
+
+    const legend = document.createElement('div');
+    legend.className = 'chart-legend-inline';
+    RANK_LABELS.forEach(function(lbl, i){
+      const row = document.createElement('span');
+      row.className = 'legend-row-inline';
+      row.innerHTML = '<span class="legend-swatch" style="background:' + RANK_COLORS[i] + '"></span>' + lbl;
+      legend.appendChild(row);
+    });
+    container.appendChild(legend);
+  }
+
+  function renderRankedTable(container, items, n){
+    let html = '<table class="freq-table"><thead><tr><th>Fuente</th><th>1ª</th><th>2ª</th><th>3ª</th><th>Menciones</th><th>% menciona</th><th>Puntuación</th></tr></thead><tbody>';
+    items.forEach(function(it){
+      const pct = n ? (it.total/n*100) : 0;
+      html += '<tr><td>' + it.label + '</td><td>' + it.counts[0] + '</td><td>' + it.counts[1] + '</td><td>' + it.counts[2] + '</td><td>' + it.total + '</td><td>' + pct.toFixed(1) + '%</td><td><strong>' + it.score + '</strong></td></tr>';
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  }
+
+  // -------------------------------------------------------------------------
+  // Gráfico de sectores / donut (identidad, 2-4 categorías)
+  // -------------------------------------------------------------------------
+  function polarPoint(cx, cy, r, angle){ return { x: cx + r*Math.cos(angle), y: cy + r*Math.sin(angle) }; }
+  function donutSegmentPath(cx, cy, rOuter, rInner, startAngle, endAngle){
+    const startOuter = polarPoint(cx, cy, rOuter, startAngle);
+    const endOuter = polarPoint(cx, cy, rOuter, endAngle);
+    const startInner = polarPoint(cx, cy, rInner, endAngle);
+    const endInner = polarPoint(cx, cy, rInner, startAngle);
+    const largeArc = (endAngle - startAngle) > Math.PI ? 1 : 0;
+    return ['M', startOuter.x, startOuter.y,
+            'A', rOuter, rOuter, 0, largeArc, 1, endOuter.x, endOuter.y,
+            'L', startInner.x, startInner.y,
+            'A', rInner, rInner, 0, largeArc, 0, endInner.x, endInner.y,
+            'Z'].join(' ');
+  }
+
+  function renderDonutChart(container, items){
+    clearEl(container);
+    const total = items.reduce(function(s,i){ return s+i.value; }, 0);
+    const size = 132;
+    const cx = size/2, cy = size/2;
+    const rOuter = size/2 - 7, rInner = rOuter * 0.56;
+    const svg = svgEl('svg', { viewBox: '0 0 ' + size + ' ' + size, width: size, height: size, style: 'display:block;margin:0 auto;' });
+
+    let angle = -Math.PI/2;
+    items.forEach(function(it, i){
+      const frac = total ? it.value/total : 0;
+      const sweep = frac * 2 * Math.PI;
+      const end = angle + sweep;
+      if (frac > 0){
+        const path = svgEl('path', { d: donutSegmentPath(cx,cy,rOuter,rInner,angle,end), fill: CATEGORICAL_COLORS[i % CATEGORICAL_COLORS.length], style: 'cursor:pointer;' });
+        path.addEventListener('mousemove', function(e){ showTooltip(e, '<strong>' + it.label + '</strong><br>' + it.value + ' (' + (frac*100).toFixed(1) + '%)'); });
+        path.addEventListener('mouseleave', hideTooltip);
+        svg.appendChild(path);
+      }
+      angle = end;
+    });
+
+    const centerVal = svgEl('text', { x: cx, y: cy-1, 'text-anchor': 'middle', 'font-size': 17, 'font-weight': 700, fill: 'var(--ink-primary)' });
+    centerVal.textContent = total;
+    svg.appendChild(centerVal);
+    const centerLbl = svgEl('text', { x: cx, y: cy+12, 'text-anchor': 'middle', 'font-size': 8.5, fill: 'var(--ink-muted)' });
+    centerLbl.textContent = 'encuestas';
+    svg.appendChild(centerLbl);
+
+    container.appendChild(svg);
+
+    const legend = document.createElement('div');
+    legend.className = 'chart-legend';
+    items.forEach(function(it, i){
+      const frac = total ? it.value/total : 0;
+      const row = document.createElement('div');
+      row.className = 'legend-row';
+      row.innerHTML = '<span class="legend-swatch" style="background:' + CATEGORICAL_COLORS[i % CATEGORICAL_COLORS.length] + '"></span>' +
+        '<span class="legend-label">' + it.label + '</span>' +
+        '<span class="legend-value">' + it.value + ' (' + (frac*100).toFixed(0) + '%)</span>';
+      legend.appendChild(row);
+    });
+    container.appendChild(legend);
+  }
+
+  // -------------------------------------------------------------------------
+  // Comparación de dos medias (barras horizontales, dos colores)
+  // -------------------------------------------------------------------------
+  function renderComparisonBars(container, items){
+    clearEl(container);
+    const width = Math.max(container.clientWidth || 260, 220);
+    const rowH = 32;
+    const labelW = 104;
+    const valueW = 40;
+    const barMaxW = width - labelW - valueW - 6;
+    const height = items.length * rowH + 6;
+    const maxVal = Math.max(1, ...items.map(function(i){ return i.value; }));
+    const svg = svgEl('svg', { viewBox: '0 0 ' + width + ' ' + height, width: '100%', height: height });
+
+    items.forEach(function(it, i){
+      const y = i * rowH + 6;
+      const label = svgEl('text', { x: 0, y: y + 10, 'font-size': 10.5, fill: 'var(--ink-secondary)', 'font-weight': 600 });
+      label.textContent = it.label;
+      svg.appendChild(label);
+
+      const barW = maxVal ? (it.value / maxVal) * barMaxW : 0;
+      const rect = svgEl('rect', { x: labelW, y: y, width: Math.max(barW,3), height: 15, rx: 4, fill: it.color, style: 'cursor:pointer;' });
+      rect.addEventListener('mousemove', function(e){ showTooltip(e, '<strong>' + it.label + '</strong><br>' + it.value.toFixed(1) + ' h de media'); });
+      rect.addEventListener('mouseleave', hideTooltip);
+      svg.appendChild(rect);
+
+      const vlbl = svgEl('text', { x: labelW + barW + 6, y: y + 12, 'font-size': 10.5, fill: 'var(--ink-primary)' });
+      vlbl.textContent = it.value.toFixed(1) + ' h';
+      svg.appendChild(vlbl);
+    });
+
+    container.appendChild(svg);
+  }
+
+  // -------------------------------------------------------------------------
+  // "Tira de posición": caja Q1-Q3, mediana y puntos individuales
+  // -------------------------------------------------------------------------
+  function renderPositionStrip(container, values){
+    clearEl(container);
+    if (!values.length){ container.textContent = 'Sin datos suficientes todavía.'; return; }
+    const width = Math.max(container.clientWidth || 260, 220);
+    const height = 96;
+    const padX = 22;
+    const stats = numericStats(values);
+    const min = stats.min, max = stats.max;
+    const range = (max - min) || 1;
+    const scaleX = function(v){ return padX + ((v-min)/range) * (width - 2*padX); };
+
+    const svg = svgEl('svg', { viewBox: '0 0 ' + width + ' ' + height, width: '100%', height: height });
+
+    const axisY = 36;
+    if (min < 0 && max > 0){
+      const zx = scaleX(0);
+      svg.appendChild(svgEl('line', { x1: zx, x2: zx, y1: 6, y2: height-14, stroke: 'var(--gridline)', 'stroke-width': 1 }));
+      const zlabel = svgEl('text', { x: zx, y: 8, 'font-size': 8.5, 'text-anchor': 'middle', fill: 'var(--ink-muted)' });
+      zlabel.textContent = '0';
+      svg.appendChild(zlabel);
+    }
+
+    const boxY = axisY - 8, boxH = 16;
+    const boxX1 = scaleX(stats.q1), boxX2 = scaleX(stats.q3);
+    svg.appendChild(svgEl('line', { x1: scaleX(stats.min), x2: scaleX(stats.q1), y1: axisY, y2: axisY, stroke: 'var(--ink-muted)', 'stroke-width': 1 }));
+    svg.appendChild(svgEl('line', { x1: scaleX(stats.q3), x2: scaleX(stats.max), y1: axisY, y2: axisY, stroke: 'var(--ink-muted)', 'stroke-width': 1 }));
+    svg.appendChild(svgEl('rect', { x: boxX1, y: boxY, width: Math.max(boxX2-boxX1, 2), height: boxH, rx: 3, fill: 'var(--series-1-light)', stroke: 'var(--series-1)', 'stroke-width': 1 }));
+    const medX = scaleX(stats.median);
+    svg.appendChild(svgEl('line', { x1: medX, x2: medX, y1: boxY, y2: boxY+boxH, stroke: 'var(--series-1-dark)', 'stroke-width': 2 }));
+
+    values.forEach(function(v, i){
+      const cx = scaleX(v);
+      const cy = axisY + 20 + (i % 3) * 7;
+      const dot = svgEl('circle', { cx: cx, cy: cy, r: 3.5, fill: 'var(--series-1)', stroke: '#fff', 'stroke-width': 1.5, style: 'cursor:pointer;' });
+      dot.addEventListener('mousemove', function(e){ showTooltip(e, 'Diferencia: ' + (v>0?'+':'') + v.toFixed(1) + ' h'); });
+      dot.addEventListener('mouseleave', hideTooltip);
+      svg.appendChild(dot);
+    });
+
+    ['min','q1','median','q3','max'].forEach(function(key){
+      const v = stats[key];
+      const x = scaleX(v);
+      const txt = svgEl('text', { x: x, y: height-3, 'font-size': 8.5, 'text-anchor': 'middle', fill: 'var(--ink-muted)' });
+      txt.textContent = v.toFixed(1);
+      svg.appendChild(txt);
+    });
+
+    container.appendChild(svg);
+  }
+
+  // -------------------------------------------------------------------------
+  // Gráfica de densidad (KDE) por grupo
+  // -------------------------------------------------------------------------
+  function renderDensityChart(container, groups){
+    clearEl(container);
+    const width = Math.max(container.clientWidth || 420, 320);
+    const height = 150;
+    const padL = 14, padR = 14, padT = 12, padB = 22;
+    const allValues = groups.reduce(function(acc,g){ return acc.concat(g.values); }, []);
+    if (!allValues.length){ container.textContent = 'Sin datos suficientes todavía.'; return; }
+    const dataMin = Math.min(...allValues), dataMax = Math.max(...allValues);
+    const pad = (dataMax-dataMin)*0.2 || 2;
+    const xMin = Math.max(0, dataMin-pad), xMax = dataMax+pad;
+    const curves = groups.filter(function(g){ return g.values.length >= 2; }).map(function(g){ return Object.assign({}, g, { pts: kdeCurve(g.values, xMin, xMax, 70) }); });
+    if (!curves.length){ container.textContent = 'Se necesitan al menos 2 personas por grupo para dibujar la densidad.'; return; }
+    const maxY = Math.max(...curves.reduce(function(acc,c){ return acc.concat(c.pts.map(function(p){ return p.y; })); }, []));
+    const scaleX = function(x){ return padL + (x-xMin)/(xMax-xMin) * (width-padL-padR); };
+    const scaleY = function(y){ return height-padB - (maxY ? y/maxY : 0) * (height-padT-padB); };
+
+    const svg = svgEl('svg', { viewBox: '0 0 ' + width + ' ' + height, width: '100%', height: height });
+    svg.appendChild(svgEl('line', { x1: padL, x2: width-padR, y1: height-padB, y2: height-padB, stroke: 'var(--baseline)', 'stroke-width': 1 }));
+    for (let i = 0; i <= 5; i++){
+      const xv = xMin + (xMax-xMin)*i/5;
+      const xx = scaleX(xv);
+      const t = svgEl('text', { x: xx, y: height-padB+13, 'font-size': 9.5, 'text-anchor': 'middle', fill: 'var(--ink-muted)' });
+      t.textContent = xv.toFixed(0) + 'h';
+      svg.appendChild(t);
+    }
+
+    curves.forEach(function(c){
+      const linePts = c.pts.map(function(p){ return scaleX(p.x) + ',' + scaleY(p.y); }).join(' ');
+      const areaPts = scaleX(xMin) + ',' + scaleY(0) + ' ' + linePts + ' ' + scaleX(xMax) + ',' + scaleY(0);
+      svg.appendChild(svgEl('polygon', { points: areaPts, fill: c.color, opacity: 0.14 }));
+      svg.appendChild(svgEl('polyline', { points: linePts, fill: 'none', stroke: c.color, 'stroke-width': 2, 'stroke-linejoin': 'round' }));
+    });
+
+    container.appendChild(svg);
+
+    const legend = document.createElement('div');
+    legend.className = 'chart-legend-inline';
+    curves.forEach(function(c){
+      const row = document.createElement('span');
+      row.className = 'legend-row-inline';
+      row.innerHTML = '<span class="legend-swatch" style="background:' + c.color + '"></span>' + c.label + ' (n=' + c.values.length + ', media ' + numericStats(c.values).mean.toFixed(1) + 'h)';
+      legend.appendChild(row);
+    });
+    container.appendChild(legend);
+  }
+
+  // -------------------------------------------------------------------------
+  // Gráfica de densidad de UNA sola variable con marcas de percentiles
+  // (P25 / mediana / P75) y una capa interactiva: al pasar el ratón sobre
+  // la curva se ve en qué percentil cae cualquier valor — la forma "fácil
+  // de ver dónde está ubicado" que pide la actividad.
+  // -------------------------------------------------------------------------
+  function renderDensityWithPercentiles(container, values, opts){
+    clearEl(container);
+    opts = opts || {};
+    const unit = opts.unit || '';
+    const decimals = opts.decimals != null ? opts.decimals : 1;
+    const color = opts.color || 'var(--series-1)';
+    const width = Math.max(container.clientWidth || 420, 320);
+    const height = 172;
+    const padL = 16, padR = 16, padT = 16, padB = 34;
+    if (values.length < 2){ container.textContent = 'Se necesitan al menos 2 personas para dibujar la densidad.'; return; }
+    const dataMin = Math.min(...values), dataMax = Math.max(...values);
+    const pad = (dataMax-dataMin)*0.2 || 2;
+    const xMin = Math.max(0, dataMin-pad), xMax = dataMax+pad;
+    const pts = kdeCurve(values, xMin, xMax, 90);
+    const maxY = Math.max(...pts.map(function(p){ return p.y; })) || 1;
+    const scaleX = function(x){ return padL + (x-xMin)/(xMax-xMin) * (width-padL-padR); };
+    const scaleY = function(y){ return height-padB - (y/maxY) * (height-padT-padB); };
+    const invX = function(px){ return xMin + (px-padL)/(width-padL-padR) * (xMax-xMin); };
+    const densityAt = function(xv){
+      for (let i = 0; i < pts.length-1; i++){
+        if (xv >= pts[i].x && xv <= pts[i+1].x){
+          const t = (xv-pts[i].x) / ((pts[i+1].x-pts[i].x) || 1);
+          return pts[i].y + (pts[i+1].y-pts[i].y) * t;
+        }
+      }
+      return pts[pts.length-1].y;
+    };
+
+    const sorted = values.slice().sort(function(a,b){ return a-b; });
+    const marks = [
+      { p: 25, label: 'P25' },
+      { p: 50, label: 'Mediana' },
+      { p: 75, label: 'P75' }
+    ].map(function(m){ return Object.assign({}, m, { v: percentile(sorted, m.p) }); });
+
+    const svg = svgEl('svg', { viewBox: '0 0 ' + width + ' ' + height, width: '100%', height: height, style: 'cursor:crosshair;' });
+
+    svg.appendChild(svgEl('line', { x1: padL, x2: width-padR, y1: height-padB, y2: height-padB, stroke: 'var(--baseline)', 'stroke-width': 1 }));
+    for (let i = 0; i <= 5; i++){
+      const xv = xMin + (xMax-xMin)*i/5;
+      const xx = scaleX(xv);
+      const t = svgEl('text', { x: xx, y: height-padB+13, 'font-size': 9.5, 'text-anchor': 'middle', fill: 'var(--ink-muted)' });
+      t.textContent = xv.toFixed(decimals) + unit;
+      svg.appendChild(t);
+    }
+
+    const linePts = pts.map(function(p){ return scaleX(p.x) + ',' + scaleY(p.y); }).join(' ');
+    const areaPts = scaleX(xMin) + ',' + scaleY(0) + ' ' + linePts + ' ' + scaleX(xMax) + ',' + scaleY(0);
+    svg.appendChild(svgEl('polygon', { points: areaPts, fill: color, opacity: 0.14 }));
+    svg.appendChild(svgEl('polyline', { points: linePts, fill: 'none', stroke: color, 'stroke-width': 2, 'stroke-linejoin': 'round' }));
+
+    marks.forEach(function(m){
+      const mx = scaleX(m.v);
+      svg.appendChild(svgEl('line', {
+        x1: mx, x2: mx, y1: padT, y2: height-padB,
+        stroke: m.p===50 ? 'var(--ink-secondary)' : 'var(--ink-muted)',
+        'stroke-width': m.p===50 ? 1.6 : 1,
+        'stroke-dasharray': m.p===50 ? 'none' : '3,3'
+      }));
+      const lbl = svgEl('text', { x: mx, y: padT-4, 'font-size': 8.5, 'text-anchor': 'middle', fill: 'var(--ink-secondary)', 'font-weight': m.p===50?700:400 });
+      lbl.textContent = m.label + ' (' + m.v.toFixed(decimals) + unit + ')';
+      svg.appendChild(lbl);
+    });
+
+    const guide = svgEl('line', { x1: 0, x2: 0, y1: padT, y2: height-padB, stroke: 'var(--ufv-accent)', 'stroke-width': 1.4, opacity: 0, 'pointer-events': 'none' });
+    const guideDot = svgEl('circle', { r: 4, fill: 'var(--ufv-accent)', stroke: '#fff', 'stroke-width': 1.5, opacity: 0, 'pointer-events': 'none' });
+    svg.appendChild(guide);
+    svg.appendChild(guideDot);
+
+    const overlay = svgEl('rect', { x: padL, y: padT, width: Math.max(width-padL-padR,1), height: Math.max(height-padT-padB,1), fill: 'transparent' });
+    overlay.addEventListener('mousemove', function(e){
+      const rect = svg.getBoundingClientRect();
+      const px = (e.clientX - rect.left) * (width/rect.width);
+      const xv = Math.min(xMax, Math.max(xMin, invX(px)));
+      const gx = scaleX(xv);
+      guide.setAttribute('x1', gx); guide.setAttribute('x2', gx); guide.setAttribute('opacity', 1);
+      guideDot.setAttribute('cx', gx); guideDot.setAttribute('cy', scaleY(densityAt(xv))); guideDot.setAttribute('opacity', 1);
+      showTooltip(e, '≈ ' + xv.toFixed(decimals) + unit + '<br>percentil ' + percentileRank(values, xv).toFixed(0));
+    });
+    overlay.addEventListener('mouseleave', function(){ guide.setAttribute('opacity',0); guideDot.setAttribute('opacity',0); hideTooltip(); });
+    svg.appendChild(overlay);
+
+    container.appendChild(svg);
+
+    const s = numericStats(values);
+    const legend = document.createElement('div');
+    legend.className = 'chart-legend-inline';
+    legend.innerHTML =
+      '<span class="legend-row-inline">n=' + values.length + ', media ' + s.mean.toFixed(decimals) + unit + ', mediana ' + s.median.toFixed(decimals) + unit + '</span>' +
+      '<span class="legend-row-inline" style="color:var(--ink-muted);">Pasa el ratón por la curva para ver el percentil de cualquier valor ↑</span>';
+    container.appendChild(legend);
+  }
+
+  // -------------------------------------------------------------------------
+  // Gráfico de dispersión con recta de regresión
+  // -------------------------------------------------------------------------
+  function renderScatterChart(container, xs, ys, labelX, labelY){
+    clearEl(container);
+    const width = Math.max(container.clientWidth || 260, 220);
+    const height = 150;
+    const padL = 8, padR = 8, padT = 8, padB = 26;
+    if (xs.length < 2){ container.textContent = 'Sin datos suficientes todavía.'; return; }
+    const xMin = Math.min(...xs), xMax = Math.max(...xs);
+    const yMin = Math.min(...ys), yMax = Math.max(...ys);
+    const xPad = (xMax-xMin)*0.12 || 1, yPad = (yMax-yMin)*0.15 || 1;
+    const x0 = xMin-xPad, x1 = xMax+xPad, y0 = yMin-yPad, y1 = yMax+yPad;
+    const scaleX = function(v){ return padL + (v-x0)/(x1-x0) * (width-padL-padR); };
+    const scaleY = function(v){ return height-padB - (v-y0)/(y1-y0) * (height-padT-padB); };
+
+    const svg = svgEl('svg', { viewBox: '0 0 ' + width + ' ' + height, width: '100%', height: height });
+    svg.appendChild(svgEl('line', { x1: padL, x2: width-padR, y1: height-padB, y2: height-padB, stroke: 'var(--baseline)', 'stroke-width': 1 }));
+    svg.appendChild(svgEl('line', { x1: padL, x2: padL, y1: padT, y2: height-padB, stroke: 'var(--baseline)', 'stroke-width': 1 }));
+
+    const reg = linearRegression(xs, ys);
+    const ly0 = reg.slope*x0 + reg.intercept;
+    const ly1 = reg.slope*x1 + reg.intercept;
+    svg.appendChild(svgEl('line', { x1: scaleX(x0), y1: scaleY(ly0), x2: scaleX(x1), y2: scaleY(ly1), stroke: 'var(--series-2)', 'stroke-width': 2 }));
+
+    xs.forEach(function(xv, i){
+      const yv = ys[i];
+      const dot = svgEl('circle', { cx: scaleX(xv), cy: scaleY(yv), r: 3.5, fill: 'var(--series-1)', stroke: '#fff', 'stroke-width': 1.5, style: 'cursor:pointer;' });
+      dot.addEventListener('mousemove', function(e){ showTooltip(e, labelX + ': ' + xv + '<br>' + labelY + ': ' + yv); });
+      dot.addEventListener('mouseleave', hideTooltip);
+      svg.appendChild(dot);
+    });
+
+    const xlab = svgEl('text', { x: width/2, y: height-4, 'text-anchor': 'middle', 'font-size': 9.5, fill: 'var(--ink-secondary)' });
+    xlab.textContent = labelX;
+    svg.appendChild(xlab);
+
+    container.appendChild(svg);
+    const ylab = document.createElement('div');
+    ylab.style.cssText = 'font-size:9.5px;color:var(--ink-secondary);text-align:center;margin-top:-3px;';
+    ylab.textContent = '↑ ' + labelY;
+    container.appendChild(ylab);
+  }
+
+  // -------------------------------------------------------------------------
+  // Tablas de frecuencia
+  // -------------------------------------------------------------------------
+  function getFieldFrequency(rows, key){
+    const meta = FIELD_META[key];
+    const vals = rows.map(function(r){ return r[key]; }).filter(function(v){ return v !== undefined && v !== null && v !== ''; });
+    return frequencyTable(vals, meta.order);
+  }
+
+  function renderFieldChart(containerId, rows, key, orientation){
+    const container = document.getElementById(containerId);
+    const table = getFieldFrequency(rows, key);
+    const items = table.map(function(t){ return { label: t.label, value: t.abs, pct: t.rel }; });
+    if (orientation === 'h') renderHBarChart(container, items);
+    else if (orientation === 'donut') renderDonutChart(container, items);
+    else renderVBarChart(container, items);
+  }
+
+  function renderFieldTable(containerId, rows, key, opts){
+    opts = opts || {};
+    const container = document.getElementById(containerId);
+    let table = getFieldFrequency(rows, key);
+    if (opts.sortByFreq) table = table.slice().sort(function(a,b){ return b.abs - a.abs; });
+    const total = table.reduce(function(s,t){ return s+t.abs; }, 0);
+    let cum = 0;
+    let html = '<table class="freq-table"><thead><tr><th>' + FIELD_META[key].label + '</th><th>Abs.</th><th>Rel.</th><th>Acum.</th></tr></thead><tbody>';
+    table.forEach(function(t){
+      cum += t.abs;
+      html += '<tr><td>' + t.label + '</td><td>' + t.abs + '</td><td>' + (t.rel*100).toFixed(1) + '%</td><td>' + (total? (cum/total*100).toFixed(1):'0') + '%</td></tr>';
+    });
+    html += '<tr class="totals-row"><td>Total</td><td>' + total + '</td><td>100%</td><td>100%</td></tr></tbody></table>';
+    container.innerHTML = html;
+  }
+
+  function renderOrdinalTable(containerId, rows, key){
+    const container = document.getElementById(containerId);
+    const table = getFieldFrequency(rows, key);
+    const total = table.reduce(function(s,t){ return s+t.abs; }, 0);
+    let cum = 0;
+    let html = '<table class="freq-table"><thead><tr><th>Valor</th><th>Abs.</th><th>Rel.</th><th>Acum.</th></tr></thead><tbody>';
+    table.forEach(function(t){
+      cum += t.abs;
+      html += '<tr><td>' + t.label + '</td><td>' + t.abs + '</td><td>' + (t.rel*100).toFixed(1) + '%</td><td>' + (total? (cum/total*100).toFixed(1):'0') + '%</td></tr>';
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  }
+
+  function renderSummaryStats(container, dict){
+    let html = '<table class="freq-table"><thead><tr><th>Variable</th><th>Media</th><th>Mediana</th><th>Moda</th><th>Mín</th><th>Máx</th></tr></thead><tbody>';
+    Object.entries(dict).forEach(function(entry){
+      const key = entry[0], vals = entry[1];
+      const label = CONTINUOUS_META[key] ? CONTINUOUS_META[key].label : key;
+      const s = numericStats(vals);
+      if (!s){ html += '<tr><td>' + label + '</td><td colspan="5">Sin datos</td></tr>'; return; }
+      html += '<tr><td>' + label + '</td><td>' + s.mean.toFixed(1) + '</td><td>' + s.median.toFixed(1) + '</td><td>' + s.mode + '</td><td>' + s.min + '</td><td>' + s.max + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  }
+
+  // -------------------------------------------------------------------------
+  // Tabla de contingencia
+  // -------------------------------------------------------------------------
+  function renderContingencyTable(container, rows, keyX, keyY){
+    const xs = FIELD_META[keyX].order;
+    const ys = FIELD_META[keyY].order;
+    const grid = ys.map(function(y){
+      return xs.map(function(x){
+        return rows.filter(function(r){ return r[keyX] === x && r[keyY] === y; }).length;
+      });
+    });
+    const rowTotals = grid.map(function(row){ return row.reduce(function(a,b){ return a+b; }, 0); });
+    const maxCell = Math.max(1, ...grid.flat());
+
+    let html = '<div class="table-scroll"><table class="contingency-table"><thead><tr><th>' + FIELD_META[keyY].label + ' \\ ' + FIELD_META[keyX].label + '</th>';
+    xs.forEach(function(x){ html += '<th>' + x + '</th>'; });
+    html += '<th>Total</th></tr></thead><tbody>';
+    ys.forEach(function(y, ri){
+      html += '<tr><th>' + y + '</th>';
+      grid[ri].forEach(function(c){
+        const pct = rowTotals[ri] ? (c/rowTotals[ri]*100) : 0;
+        const alpha = maxCell ? (c/maxCell) * 0.35 : 0;
+        html += '<td style="background: rgba(42,120,214,' + alpha.toFixed(2) + ')">' + c + '<span class="cell-pct">' + pct.toFixed(0) + '%</span></td>';
+      });
+      html += '<td class="totals-col">' + rowTotals[ri] + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+  }
+
+  function populateContingencySelectors(){
+    const selX = document.getElementById('contX');
+    const selY = document.getElementById('contY');
+    Object.keys(FIELD_META).forEach(function(k){
+      const optX = document.createElement('option'); optX.value = k; optX.textContent = FIELD_META[k].label;
+      selX.appendChild(optX);
+      const optY = document.createElement('option'); optY.value = k; optY.textContent = FIELD_META[k].label;
+      selY.appendChild(optY);
+    });
+    selX.value = 'a4_mas_importante';
+    selY.value = 'c3_sorpresa';
+    selX.addEventListener('change', renderContingenciaActual);
+    selY.addEventListener('change', renderContingenciaActual);
+  }
+
+  function renderContingenciaActual(){
+    const keyX = document.getElementById('contX').value;
+    const keyY = document.getElementById('contY').value;
+    renderContingencyTable(document.getElementById('contingencyContainer'), window.currentGroupRows || [], keyX, keyY);
+  }
+
+  // -------------------------------------------------------------------------
+  // KPIs
+  // -------------------------------------------------------------------------
+  function renderKPIs(rows){
+    const el = document.getElementById('kpiRow');
+    const n = rows.length;
+    const b1 = rows.map(function(r){ return Number(r.b1_horas_estudio_imaginadas); }).filter(function(v){ return !isNaN(v); });
+    const b2 = rows.map(function(r){ return Number(r.b2_horas_estudio_reales); }).filter(function(v){ return !isNaN(v); });
+    const s1 = numericStats(b1), s2 = numericStats(b2);
+    const mean1 = s1 ? s1.mean : 0, mean2 = s2 ? s2.mean : 0;
+    const diff = mean2 - mean1;
+    el.innerHTML =
+      '<div class="kpi-tile"><div class="kpi-value">' + n + '</div><div class="kpi-label">Encuestas registradas</div></div>' +
+      '<div class="kpi-tile"><div class="kpi-value">' + mean1.toFixed(1) + ' h</div><div class="kpi-label">Media horas imaginadas</div></div>' +
+      '<div class="kpi-tile"><div class="kpi-value">' + mean2.toFixed(1) + ' h</div><div class="kpi-label">Media horas reales</div></div>' +
+      '<div class="kpi-tile"><div class="kpi-value">' + (diff>=0?'+':'') + diff.toFixed(1) + ' h</div><div class="kpi-label">Diferencia media (real − imaginado)</div></div>';
+  }
+
+  // -------------------------------------------------------------------------
+  // Render de un grupo completo
+  // -------------------------------------------------------------------------
+  function renderGroup(group){
+    const rows = group === 'Todos'
+      ? GRUPOS.flatMap(function(g){ return allData[g] || []; })
+      : (allData[group] || []);
+    window.currentGroupRows = rows;
+
+    renderKPIs(rows);
+
+    renderFieldChart('chartSexo', rows, 'sexo', 'donut');
+    renderFieldChart('chartA1', rows, 'a1', 'donut');
+    renderFieldTable('tableA2', rows, 'a2', { sortByFreq: true });
+    renderFieldChart('chartA3', rows, 'a3', 'h');
+    const rankedA4 = computeRankedScores(rows, 'a4_mas_importante', 'a4_segunda', 'a4_tercera', FIELD_META.a4_mas_importante.order);
+    renderRankedBarChart(document.getElementById('chartA4'), rankedA4);
+    renderRankedTable(document.getElementById('tableA4'), rankedA4, rows.length);
+
+    const b1vals = rows.map(function(r){ return Number(r.b1_horas_estudio_imaginadas); }).filter(function(v){ return !isNaN(v); });
+    const b2vals = rows.map(function(r){ return Number(r.b2_horas_estudio_reales); }).filter(function(v){ return !isNaN(v); });
+    const s1 = numericStats(b1vals), s2 = numericStats(b2vals);
+    renderComparisonBars(document.getElementById('chartB1B2'), [
+      { label: 'Horas imaginadas', value: s1 ? s1.mean : 0, color: 'var(--series-1)' },
+      { label: 'Horas reales', value: s2 ? s2.mean : 0, color: 'var(--series-2)' }
+    ]);
+    renderDensityWithPercentiles(document.getElementById('chartHorasDensidad'), b2vals, { unit: ' h', decimals: 1, color: 'var(--series-1)' });
+    const diffs = rows.map(function(r){ return Number(r.b2_horas_estudio_reales) - Number(r.b1_horas_estudio_imaginadas); }).filter(function(v){ return !isNaN(v); });
+    renderPositionStrip(document.getElementById('chartDiffPosition'), diffs);
+    renderSummaryStats(document.getElementById('statsB'), {
+      b3_fiestas_ultimo_mes: rows.map(function(r){ return Number(r.b3_fiestas_ultimo_mes); }).filter(function(v){ return !isNaN(v); }),
+      b4_horas_socializar: rows.map(function(r){ return Number(r.b4_horas_socializar); }).filter(function(v){ return !isNaN(v); })
+    });
+
+    const SAT_ITEM_KEYS = ['satisfaccion_general', 'c1_coincide_con_lo_imaginado', 'c2_coincide_con_peliculas', 'c4_extranara_vida_universitaria'];
+    const satSums = rows.map(function(r){
+      const vals = SAT_ITEM_KEYS.map(function(k){ return Number(r[k]); });
+      if (vals.some(function(v){ return isNaN(v); })) return null;
+      return vals.reduce(function(a,b){ return a+b; }, 0);
+    }).filter(function(v){ return v !== null; });
+    renderDensityWithPercentiles(document.getElementById('chartSatisfaccionSuma'), satSums, { unit: ' pts', decimals: 0, color: 'var(--series-3)' });
+    renderFieldTable('tableC3', rows, 'c3_sorpresa');
+    renderFieldChart('chartC4', rows, 'c4_extranara_vida_universitaria', 'v');
+    renderOrdinalTable('tableC4', rows, 'c4_extranara_vida_universitaria');
+
+    // Bloque D — densidad y correlaciones
+    const sexGroups = FIELD_META.sexo.order.map(function(s, i){
+      return {
+        label: s,
+        color: CATEGORICAL_COLORS[i % CATEGORICAL_COLORS.length],
+        values: rows.filter(function(r){ return r.sexo === s; }).map(function(r){ return Number(r.b2_horas_estudio_reales); }).filter(function(v){ return !isNaN(v); })
+      };
+    });
+    renderDensityChart(document.getElementById('chartDensitySexo'), sexGroups);
+
+    const pairsFiestas = rows.map(function(r){ return { x: Number(r.b3_fiestas_ultimo_mes), y: Number(r.satisfaccion_general) }; }).filter(function(p){ return !isNaN(p.x) && !isNaN(p.y); });
+    const rFiestas = pearsonR(pairsFiestas.map(function(p){ return p.x; }), pairsFiestas.map(function(p){ return p.y; }));
+    renderScatterChart(document.getElementById('chartCorrFiestas'), pairsFiestas.map(function(p){ return p.x; }), pairsFiestas.map(function(p){ return p.y; }), 'Fiestas último mes', 'Satisfacción (1-7)');
+    document.getElementById('rCorrFiestas').textContent = rFiestas === null ? 'r = —' : 'r = ' + rFiestas.toFixed(2);
+
+    const pairsHoras = rows.map(function(r){ return { x: Number(r.b2_horas_estudio_reales), y: Number(r.satisfaccion_general) }; }).filter(function(p){ return !isNaN(p.x) && !isNaN(p.y); });
+    const rHoras = pearsonR(pairsHoras.map(function(p){ return p.x; }), pairsHoras.map(function(p){ return p.y; }));
+    renderScatterChart(document.getElementById('chartCorrHoras'), pairsHoras.map(function(p){ return p.x; }), pairsHoras.map(function(p){ return p.y; }), 'Horas de estudio reales/semana', 'Satisfacción (1-7)');
+    document.getElementById('rCorrHoras').textContent = rHoras === null ? 'r = —' : 'r = ' + rHoras.toFixed(2);
+
+    renderContingenciaActual();
+  }
+
+  // -------------------------------------------------------------------------
+  // Datos de ejemplo (modo sin conexión)
+  // -------------------------------------------------------------------------
+  function randomChoice(arr, weights){
+    if (!weights) return arr[Math.floor(Math.random()*arr.length)];
+    const total = weights.reduce(function(a,b){ return a+b; }, 0);
+    let r = Math.random() * total;
+    for (let i = 0; i < arr.length; i++){ r -= weights[i]; if (r <= 0) return arr[i]; }
+    return arr[arr.length-1];
+  }
+  function randInt(min, max){ return Math.floor(Math.random()*(max-min+1)) + min; }
+  function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+
+  const A4_WEIGHTS = [0.26,0.05,0.22,0.15,0.08,0.08,0.06,0.05,0.05];
+  function pickRankedTrio(order, weights){
+    // Elige hasta 3 opciones distintas, jerárquicamente, sin repetir - igual que
+    // hace el estudiante en el formulario (rank-pills, máximo 3).
+    const pool = order.slice();
+    const poolWeights = weights.slice();
+    const picked = [];
+    const howMany = randomChoice([1,2,3], [0.15,0.35,0.5]);
+    for (let k = 0; k < howMany && pool.length; k++){
+      const choice = randomChoice(pool, poolWeights);
+      const idx = pool.indexOf(choice);
+      pool.splice(idx, 1);
+      poolWeights.splice(idx, 1);
+      picked.push(choice);
+    }
+    return picked; // [primera, segunda, tercera] (algunas pueden faltar)
+  }
+
+  function generarDatosEjemplo(grupo, n){
+    const rows = [];
+    for (let i = 0; i < n; i++){
+      const b1 = randInt(2, 25);
+      const b2 = Math.max(0, b1 + randInt(-8, 8));
+      const b3 = randInt(0, 10);
+      const satisfaccionBase = 4 + 0.12*(b2-10) + 0.12*(b3-5) + (Math.random()*2-1)*1.6;
+      const a4trio = pickRankedTrio(FIELD_META.a4_mas_importante.order, A4_WEIGHTS);
+      rows.push({
+        timestamp: new Date().toISOString(), grupo: grupo, encuestador: 'DEMO',
+        sexo: randomChoice(FIELD_META.sexo.order, [0.46, 0.46, 0.08]),
+        a1: randomChoice(FIELD_META.a1.order, [0.75, 0.25]),
+        a2: randomChoice(FIELD_META.a2.order, [0.16,0.12,0.1,0.14,0.12,0.2,0.1,0.06]),
+        a3: randomChoice(FIELD_META.a3.order, [0.22,0.22,0.2,0.18,0.1,0.03,0.05]),
+        a4_mas_importante: a4trio[0] || '',
+        a4_segunda: a4trio[1] || '',
+        a4_tercera: a4trio[2] || '',
+        b1_horas_estudio_imaginadas: b1,
+        b2_horas_estudio_reales: b2,
+        b3_fiestas_ultimo_mes: b3,
+        b4_horas_socializar: randInt(1, 20),
+        satisfaccion_general: clamp(Math.round(satisfaccionBase), 1, 7),
+        c1_coincide_con_lo_imaginado: randInt(1, 7),
+        c2_coincide_con_peliculas: randInt(1, 7),
+        c3_sorpresa: randomChoice(FIELD_META.c3_sorpresa.order, [0.1,0.15,0.2,0.3,0.25]),
+        c4_extranara_vida_universitaria: randInt(1, 7)
+      });
+    }
+    return rows;
+  }
+
+  function cargarDatosDeEjemplo(){
+    allData = {};
+    GRUPOS.forEach(function(g){ allData[g] = generarDatosEjemplo(g, 10 + Math.floor(Math.random()*14)); });
+    document.getElementById('demoBadge').classList.add('show');
+    actualizarHoraRefresco();
+    renderGroup(activeGroup);
+  }
+
+  // -------------------------------------------------------------------------
+  // Carga de datos reales (Apps Script)
+  // -------------------------------------------------------------------------
+  function actualizarHoraRefresco(){
+    const now = new Date();
+    document.getElementById('ultimaActualizacion').textContent = 'Actualizado: ' + now.toLocaleTimeString('es-ES');
+  }
+
+  async function cargarDatos(){
+    if (!DATA_URL){
+      cargarDatosDeEjemplo();
+      return;
+    }
+    try{
+      const res = await fetch(DATA_URL, { cache: 'no-store' });
+      const json = await res.json();
+      allData = json;
+      document.getElementById('demoBadge').classList.remove('show');
+      actualizarHoraRefresco();
+      renderGroup(activeGroup);
+    } catch(err){
+      console.error('No se pudieron cargar los datos reales, usando datos de ejemplo.', err);
+      if (!Object.keys(allData).length) cargarDatosDeEjemplo();
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Eventos
+  // -------------------------------------------------------------------------
+  document.querySelectorAll('.tab-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('is-checked'); });
+      btn.classList.add('is-checked');
+      activeGroup = btn.dataset.group;
+      renderGroup(activeGroup);
+    });
+  });
+
+  document.getElementById('btnRefrescar').addEventListener('click', cargarDatos);
+
+  let resizeTimer = null;
+  window.addEventListener('resize', function(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function(){ renderGroup(activeGroup); }, 150);
+  });
+
+  populateContingencySelectors();
+  cargarDatos();
+  setInterval(cargarDatos, 15000);
+</script>
+
+</body>
+</html>
