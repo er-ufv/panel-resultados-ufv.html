@@ -167,6 +167,15 @@
   .chart-tooltip{ display:none; position:fixed; z-index:1000; background:var(--ufv-blue); color:#fff; font-size:12.5px; padding:7px 11px; border-radius:8px; pointer-events:none; line-height:1.4; max-width:260px; box-shadow:0 4px 14px rgba(0,0,0,.2); }
 
   footer{ max-width:1360px; margin:28px auto 0; padding:0 24px; font-size:12px; color:var(--muted); text-align:center; }
+  .block-e .section-badge{ background:#eda100; }
+  .block-e .tile-grid{ grid-auto-flow:dense; }
+  #tableDisp .freq-table td:first-child{ min-width:120px; }
+  .disp-select{ margin-left:auto; display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
+  .disp-select select{ padding:6px 10px; font-size:13px; border:1.5px solid var(--border); border-radius:9px; background:#fff; font-family:inherit; color:var(--text); }
+  .disp-kpis{ display:flex; gap:8px; flex-wrap:wrap; margin:4px 0 8px; }
+  .disp-kpi{ flex:1 1 110px; background:#fdf6e3; color:#6b4e00; border-radius:10px; padding:6px 10px; font-size:11px; line-height:1.25; }
+  .disp-kpi strong{ display:block; font-size:17px; }
+  .freq-table td.expl{ white-space:normal; color:var(--ink-secondary); font-size:10.5px; min-width:150px; }
 </style>
 </head>
 <body>
@@ -261,6 +270,38 @@
       <div class="tile"><h3>Horas de estudio reales vs. satisfacción general</h3><div id="rCorrHoras" class="corr-stat">r = —</div><div id="chartCorrHoras"></div></div>
     </div>
     <p class="tile-note" style="margin:8px 2px 0;">r = correlación de Pearson (−1 a 1). Orientativo: |r| &lt; 0,1 prácticamente nula · 0,1–0,3 débil · 0,3–0,5 moderada · &gt; 0,5 fuerte. Los puntos llevan un pequeño desplazamiento aleatorio para que no se tapen respuestas iguales. Correlación no implica causalidad.</p>
+  </div>
+
+  <!-- BLOQUE E — Dispersión -->
+  <div class="tile-section block-e">
+    <div class="section-head">
+      <span class="section-badge">E</span><span class="section-title">Dispersión</span>
+      <span class="section-sub">— ¿las respuestas se parecen entre sí o están muy repartidas?</span>
+      <label class="disp-select">Variable:
+        <select id="dispVar"></select>
+      </label>
+    </div>
+    <div class="tile-grid">
+      <div class="tile tile-wide">
+        <h3 id="dispTitle1">Cada persona respecto a la media</h3>
+        <p class="tile-note">Cada punto es una persona. Franja oscura = media ± 1 desviación típica (DT); franja clara = ± 2 DT. Los puntos naranjas se alejan más de 1 DT de la media; los rojos, más de 2 DT. Pasa el ratón por un punto para ver su desviación y su puntuación z.</p>
+        <div id="chartDispDots"></div>
+      </div>
+      <div class="tile">
+        <h3>Diagrama de caja y bigotes</h3>
+        <p class="tile-note">Caja = 50% central (de Q1 a Q3). Su anchura es el rango intercuartílico (RIC). Bigotes = valores no atípicos más extremos; puntos rojos = atípicos (a más de 1,5 × RIC de la caja).</p>
+        <div id="chartDispBox"></div>
+      </div>
+      <div class="tile tile-wide">
+        <h3>Medidas de dispersión</h3>
+        <div class="table-scroll" id="tableDisp"></div>
+      </div>
+      <div class="tile tile-wide">
+        <h3>¿Qué grupo es más homogéneo? (todos los grupos, misma escala)</h3>
+        <p class="tile-note">Una caja estrecha indica respuestas parecidas entre sí (poca dispersión); una caja ancha, respuestas muy distintas. El rombo marca la media. Esta comparación usa siempre todos los grupos, sea cual sea la pestaña activa.</p>
+        <div id="chartDispGroups"></div>
+      </div>
+    </div>
   </div>
 
   <section class="card">
@@ -1032,7 +1073,226 @@
     corr('b3_fiestas_ultimo_mes', 'chartCorrFiestas', 'rCorrFiestas', 'Fiestas en el último mes');
     corr('b2_horas_estudio_reales', 'chartCorrHoras', 'rCorrHoras', 'Horas de estudio reales / semana');
 
+    renderDispersion();
     renderContingenciaActual();
+  }
+
+  // ==========================================================================
+  // BLOQUE E — Dispersión
+  // ==========================================================================
+  const DISP_VARS = {
+    satisfaccion_general: { label:'Satisfacción general (1–7)', unit:'', dec:2, min:1, max:7, discrete:true, get:function(r){ return toNum(r.satisfaccion_general); } },
+    sat_global: { label:'Puntuación global de satisfacción (4–28)', unit:' pts', dec:1, min:4, max:28, discrete:true, get:function(r){
+      const v = SAT_ITEM_KEYS.map(function(k){ return toNum(r[k]); });
+      return v.every(function(x){ return isFinite(x) && x >= 1 && x <= 7; }) ? v.reduce(function(a, b){ return a + b; }, 0) : NaN; } },
+    c1_coincide_con_lo_imaginado: { label:'Coincide con lo imaginado (1–7)', unit:'', dec:2, min:1, max:7, discrete:true, get:function(r){ return toNum(r.c1_coincide_con_lo_imaginado); } },
+    c2_coincide_con_peliculas: { label:'Coincide con las películas (1–7)', unit:'', dec:2, min:1, max:7, discrete:true, get:function(r){ return toNum(r.c2_coincide_con_peliculas); } },
+    c4_extranara_vida_universitaria: { label:'Extrañará la universidad (1–7)', unit:'', dec:2, min:1, max:7, discrete:true, get:function(r){ return toNum(r.c4_extranara_vida_universitaria); } },
+    b2_horas_estudio_reales: { label:'Horas de estudio reales / semana', unit:' h', dec:1, get:function(r){ return toNum(r.b2_horas_estudio_reales); } },
+    b1_horas_estudio_imaginadas: { label:'Horas de estudio imaginadas / semana', unit:' h', dec:1, get:function(r){ return toNum(r.b1_horas_estudio_imaginadas); } },
+    b3_fiestas_ultimo_mes: { label:'Fiestas en el último mes', unit:'', dec:1, get:function(r){ return toNum(r.b3_fiestas_ultimo_mes); } },
+    b4_horas_socializar: { label:'Horas de socializar / semana', unit:' h', dec:1, get:function(r){ return toNum(r.b4_horas_socializar); } }
+  };
+  function dispValues(rows, key){ const g = DISP_VARS[key].get; return rows.map(g).filter(function(v){ return isFinite(v); }); }
+  function dispDomain(values, o){
+    if (o.min != null) return [o.min, o.max];
+    const lo = Math.min.apply(null, values), hi = Math.max.apply(null, values);
+    const pad = Math.max(1, (hi - lo) * 0.05);
+    return [Math.max(0, Math.floor(lo - pad)), Math.ceil(hi + pad)];
+  }
+  function boxStats(values){
+    const s = numericStats(values), iqr = s.q3 - s.q1;
+    const lf = s.q1 - 1.5 * iqr, uf = s.q3 + 1.5 * iqr;
+    const inside = values.filter(function(v){ return v >= lf && v <= uf; });
+    return Object.assign({}, s, { iqr:iqr, wLo:Math.min.apply(null, inside), wHi:Math.max.apply(null, inside),
+      outliers:values.filter(function(v){ return v < lf || v > uf; }) });
+  }
+
+  // 1) Puntos apilados con franjas de ±1 DT y ±2 DT
+  function renderDispDots(container, values, o){
+    if (values.length < 3) return emptyMsg(container, values.length ? 'Se necesitan al menos 3 respuestas.' : null);
+    clearEl(container);
+    const s = numericStats(values), sd = s.sd, n = values.length;
+    const within1 = values.filter(function(v){ return Math.abs(v - s.mean) <= sd; }).length;
+    const within2 = values.filter(function(v){ return Math.abs(v - s.mean) <= 2 * sd; }).length;
+    container.insertAdjacentHTML('beforeend',
+      '<div class="disp-kpis">' +
+        '<div class="disp-kpi"><strong>' + fmt(s.mean, o.dec) + o.unit + '</strong>media</div>' +
+        '<div class="disp-kpi"><strong>± ' + fmt(sd, o.dec) + o.unit + '</strong>desviación típica (DT)</div>' +
+        '<div class="disp-kpi"><strong>' + fmt(within1 / n * 100, 0) + '%</strong>a menos de 1 DT de la media</div>' +
+        '<div class="disp-kpi"><strong>' + fmt(within2 / n * 100, 0) + '%</strong>a menos de 2 DT de la media</div>' +
+      '</div>');
+    const dom = dispDomain(values, o);
+    const width = widthOf(container, 320), padL = 14, padR = 14, plotW = width - padL - padR;
+    const binW = o.discrete ? 1 : Math.max(1, niceStep(dom[1] - dom[0], 30));
+    const nb = Math.round((dom[1] - dom[0]) / binW) + 1, binPx = plotW / nb;
+    const xOf = function(v){ return padL + ((v - dom[0]) / binW + 0.5) * binPx; };
+    const bins = {};
+    values.slice().sort(function(a, b){ return a - b; }).forEach(function(v){ const k = Math.round((v - dom[0]) / binW); (bins[k] = bins[k] || []).push(v); });
+    const maxStack = Math.max.apply(null, Object.keys(bins).map(function(k){ return bins[k].length; }));
+    let r = Math.max(2, Math.min(6, binPx / 2 - 1));
+    while (r > 2 && maxStack * (2 * r + 1) > 200) r -= 0.5;
+    // Si aun así no cabe en columnas, los puntos se reparten en varias columnas dentro del mismo valor
+    const colsPerBin = Math.max(1, Math.floor((binPx - 2) / (2 * r + 1)));
+    const perCol = Math.ceil(maxStack / colsPerBin);
+    const step = 2 * r + 1;
+    const lab = layoutMarkerLabels([
+      { v:s.mean - sd, label:'−1 DT' }, { v:s.mean, label:'Media', strong:true }, { v:s.mean + sd, label:'+1 DT' }
+    ], function(v){ return Math.max(padL, Math.min(padL + plotW, xOf(v))); }, width, function(v){ return fmt(v, o.dec); });
+    const padT = lab.height, plotH = Math.max(50, Math.min(perCol, maxStack) * step + 6), padB = 22;
+    const height = padT + plotH + padB, y0 = padT + plotH;
+    const clampX = function(v){ return Math.max(padL, Math.min(padL + plotW, xOf(v))); };
+    const svg = svgEl('svg', { viewBox:'0 0 ' + width + ' ' + height, width:'100%', height:height });
+    svg.appendChild(svgEl('rect', { x:clampX(s.mean - 2 * sd), y:padT, width:clampX(s.mean + 2 * sd) - clampX(s.mean - 2 * sd), height:plotH, fill:'#fdf6e3' }));
+    svg.appendChild(svgEl('rect', { x:clampX(s.mean - sd), y:padT, width:clampX(s.mean + sd) - clampX(s.mean - sd), height:plotH, fill:'#f6e3ae', opacity:0.75 }));
+    svg.appendChild(svgEl('line', { x1:padL, x2:padL + plotW, y1:y0, y2:y0, stroke:'var(--baseline)' }));
+    lab.items.forEach(function(it){ it.xv = Math.max(padL, Math.min(padL + plotW, it.xv)); });
+    drawMarkers(svg, lab, padT, y0);
+    const tickVals = o.discrete && nb <= 12 ? (function(){ const a = []; for (let v = dom[0]; v <= dom[1]; v++) a.push(v); return a; })()
+                   : niceTicks(dom[0], dom[1], Math.max(3, Math.floor(plotW / 50)));
+    tickVals.forEach(function(v){ svgText(svg, xOf(v), y0 + 14, fmt(v, Number.isInteger(v) ? 0 : 1), { 'text-anchor':'middle' }); });
+    Object.keys(bins).forEach(function(k){
+      const list = bins[k], cx0 = padL + (+k + 0.5) * binPx;
+      list.forEach(function(v, j){
+        const col = Math.floor(j / perCol), row = j % perCol;
+        const cols = Math.min(colsPerBin, Math.ceil(list.length / perCol));
+        const cx = cx0 + (col - (cols - 1) / 2) * step;
+        const z = sd ? (v - s.mean) / sd : 0, az = Math.abs(z);
+        const fill = az > 2 ? 'var(--ufv-accent)' : az > 1 ? 'var(--series-2)' : 'var(--series-1)';
+        const dot = svgEl('circle', { cx:cx, cy:y0 - r - 2 - row * step, r:r, fill:fill, stroke:'#fff', 'stroke-width':1, style:'cursor:pointer;' });
+        hover(dot, function(){ return 'Valor: <b>' + fmt(v, o.discrete ? 0 : 1) + o.unit + '</b><br>Desviación (valor − media): <b>' + fmtSigned(v - s.mean, 2) + '</b><br>Puntuación z: <b>' + fmtSigned(z, 2) + '</b>'; });
+        svg.appendChild(dot);
+      });
+    });
+    container.appendChild(svg);
+  }
+
+  // 2) Caja y bigotes con etiquetas sin solapes
+  function renderBoxPlot(container, values, o){
+    if (values.length < 3) return emptyMsg(container, values.length ? 'Se necesitan al menos 3 respuestas.' : null);
+    clearEl(container);
+    const b = boxStats(values), dom = dispDomain(values, o);
+    const width = widthOf(container, 260), padL = 14, padR = 14, plotW = width - padL - padR;
+    const sx = function(v){ return padL + (v - dom[0]) / ((dom[1] - dom[0]) || 1) * plotW; };
+    const svg = svgEl('svg', { viewBox:'0 0 ' + width + ' 10', width:'100%' });
+    const top = 26, boxH = 30, cy = top + boxH / 2;
+    // corchete del RIC
+    const x1 = sx(b.q1), x3 = sx(b.q3);
+    svg.appendChild(svgEl('path', { d:'M' + x1 + ',' + (top - 4) + ' v-6 H' + x3 + ' v6', fill:'none', stroke:'var(--ink-secondary)', 'stroke-width':1 }));
+    svgText(svg, (x1 + x3) / 2, top - 13, 'RIC = ' + fmt(b.iqr, o.dec) + o.unit, { 'text-anchor':'middle', 'font-size':10, fill:'var(--ink-primary)', 'font-weight':700 });
+    // bigotes
+    [[b.wLo, b.q1], [b.q3, b.wHi]].forEach(function(seg){ svg.appendChild(svgEl('line', { x1:sx(seg[0]), x2:sx(seg[1]), y1:cy, y2:cy, stroke:'var(--ink-muted)', 'stroke-width':1.2 })); });
+    [b.wLo, b.wHi].forEach(function(v){ svg.appendChild(svgEl('line', { x1:sx(v), x2:sx(v), y1:cy - 8, y2:cy + 8, stroke:'var(--ink-muted)', 'stroke-width':1.2 })); });
+    const box = svgEl('rect', { x:x1, y:top, width:Math.max(x3 - x1, 2), height:boxH, rx:3, fill:'var(--series-1-light)', stroke:'var(--series-1)', style:'cursor:pointer;' });
+    hover(box, function(){ return 'El 50% central está entre <b>' + fmt(b.q1, o.dec) + '</b> y <b>' + fmt(b.q3, o.dec) + '</b>' + o.unit; });
+    svg.appendChild(box);
+    svg.appendChild(svgEl('line', { x1:sx(b.median), x2:sx(b.median), y1:top, y2:top + boxH, stroke:'var(--series-1-dark)', 'stroke-width':2.5 }));
+    // media como rombo
+    const mx = sx(b.mean);
+    svg.appendChild(svgEl('path', { d:'M' + mx + ',' + (cy - 5) + ' l5,5 l-5,5 l-5,-5 z', fill:'#fff', stroke:'var(--ink-primary)', 'stroke-width':1.2 }));
+    b.outliers.forEach(function(v, i){
+      const c = svgEl('circle', { cx:sx(v), cy:cy + ((i % 3) - 1) * 5, r:3.5, fill:'var(--ufv-accent)', stroke:'#fff', 'stroke-width':1, style:'cursor:pointer;' });
+      hover(c, function(){ return 'Valor atípico: <b>' + fmt(v, o.discrete ? 0 : 1) + o.unit + '</b>'; });
+      svg.appendChild(c);
+    });
+    // eje y etiquetas inferiores
+    const axisY = top + boxH + 10;
+    svg.appendChild(svgEl('line', { x1:padL, x2:padL + plotW, y1:axisY, y2:axisY, stroke:'var(--baseline)' }));
+    const marks = [
+      { v:b.wLo, t:'mín ' + fmt(b.wLo, o.discrete ? 0 : 1) }, { v:b.q1, t:'Q1 ' + fmt(b.q1, o.dec) },
+      { v:b.median, t:'Me ' + fmt(b.median, o.dec), strong:true }, { v:b.q3, t:'Q3 ' + fmt(b.q3, o.dec) },
+      { v:b.wHi, t:'máx ' + fmt(b.wHi, o.discrete ? 0 : 1) }
+    ].map(function(m){ const w = textW(m.t, 9.5) + 6, xv = sx(m.v); return { xv:xv, x:Math.min(width - w / 2 - 2, Math.max(w / 2 + 2, xv)), w:w, t:m.t, strong:m.strong }; });
+    const lv = assignLevels(marks, 4);
+    marks.forEach(function(m, i){
+      svg.appendChild(svgEl('line', { x1:m.xv, x2:m.xv, y1:axisY, y2:axisY + 3, stroke:'var(--baseline)' }));
+      svgText(svg, m.x, axisY + 14 + lv[i] * 12, m.t, { 'text-anchor':'middle', 'font-size':9.5, fill:m.strong ? 'var(--ink-primary)' : 'var(--ink-secondary)', 'font-weight':m.strong ? 700 : 400 });
+    });
+    const h = axisY + 20 + Math.max.apply(null, lv) * 12;
+    svg.setAttribute('viewBox', '0 0 ' + width + ' ' + h); svg.setAttribute('height', h);
+    container.appendChild(svg);
+    container.insertAdjacentHTML('beforeend', '<div class="chart-legend-inline"><span class="legend-row-inline"><span class="legend-line" style="border-color:var(--series-1-dark);border-top-width:2.5px"></span>mediana</span><span class="legend-row-inline">◇ media</span><span class="legend-row-inline"><span class="legend-swatch" style="background:var(--ufv-accent);border-radius:50%"></span>atípicos: ' + b.outliers.length + '</span></div>');
+  }
+
+  // 3) Tabla de medidas con explicación
+  function renderDispTable(el, values, o){
+    if (values.length < 2){ emptyMsg(el, values.length ? 'Se necesitan al menos 2 respuestas.' : null); return; }
+    const b = boxStats(values), n = values.length;
+    const variance = b.sd * b.sd;
+    const mad = values.reduce(function(a, v){ return a + Math.abs(v - b.mean); }, 0) / n;
+    const cv = b.mean > 0 ? b.sd / b.mean * 100 : null;
+    const u = o.unit;
+    const rows = [
+      ['Rango', fmt(b.max - b.min, o.dec) + u, 'Máximo − mínimo (' + fmt(b.max, o.discrete ? 0 : 1) + ' − ' + fmt(b.min, o.discrete ? 0 : 1) + '). Muy sensible a valores extremos.'],
+      ['Rango intercuartílico (RIC)', fmt(b.iqr, o.dec) + u, 'Q3 − Q1: amplitud del 50% central. No le afectan los extremos.'],
+      ['Desviación media', fmt(mad, o.dec) + u, 'Distancia media (sin signo) de cada persona a la media.'],
+      ['Varianza (s²)', fmt(variance, o.dec), 'Media de las desviaciones al cuadrado (con n − 1). Unidades al cuadrado.'],
+      ['Desviación típica (s)', fmt(b.sd, o.dec) + u, 'Raíz de la varianza; en las mismas unidades que la variable.'],
+      ['Coef. de variación (CV)', cv == null ? '—' : fmt(cv, 1) + '%', 'DT / media × 100. Permite comparar dispersión entre variables con distinta escala.']
+    ];
+    let html = '<table class="freq-table"><thead><tr><th>Medida</th><th class="num">Valor</th><th>Qué indica</th></tr></thead><tbody>';
+    rows.forEach(function(r){ html += '<tr><td><b>' + r[0] + '</b></td><td class="num">' + r[1] + '</td><td class="expl">' + r[2] + '</td></tr>'; });
+    el.innerHTML = html + '</tbody></table><p class="tile-note" style="margin-top:6px">n = ' + n + ' respuestas válidas.</p>';
+  }
+
+  // 4) Cajas por grupo en la misma escala
+  function renderGroupBoxes(container, key, o){
+    const groups = GRUPOS.concat(extraGroups).map(function(g){ return { g:g, v:dispValues(allData[g] || [], key) }; });
+    const usable = groups.filter(function(x){ return x.v.length >= 3; });
+    if (!usable.length) return emptyMsg(container, 'Se necesitan al menos 3 respuestas por grupo.');
+    clearEl(container);
+    const all = [].concat.apply([], usable.map(function(x){ return x.v; }));
+    const dom = dispDomain(all, o);
+    const width = widthOf(container, 320), labelW = 62, rightW = 150, padR = 8;
+    const plotW = width - labelW - rightW - padR, rowH = 28, padT = 4;
+    const sx = function(v){ return labelW + (v - dom[0]) / ((dom[1] - dom[0]) || 1) * plotW; };
+    const stats = usable.map(function(x){ return Object.assign({ g:x.g }, boxStats(x.v)); });
+    const sds = stats.map(function(s){ return s.sd; });
+    const minSd = Math.min.apply(null, sds), maxSd = Math.max.apply(null, sds);
+    const rowsAll = groups;
+    const height = padT + rowsAll.length * rowH + 24;
+    const svg = svgEl('svg', { viewBox:'0 0 ' + width + ' ' + height, width:'100%', height:height });
+    const tv = niceTicks(dom[0], dom[1], Math.max(3, Math.floor(plotW / 55)));
+    tv.forEach(function(v){
+      svg.appendChild(svgEl('line', { x1:sx(v), x2:sx(v), y1:padT, y2:height - 20, stroke:'var(--gridline)' }));
+      svgText(svg, sx(v), height - 7, fmt(v, Number.isInteger(v) ? 0 : 1), { 'text-anchor':'middle' });
+    });
+    rowsAll.forEach(function(x, i){
+      const y = padT + i * rowH, cy = y + rowH / 2;
+      svgText(svg, 0, cy + 3.5, x.g.length === 1 ? 'Grupo ' + x.g : x.g, { 'font-size':10.5, fill:'var(--ink-secondary)', 'font-weight':600 });
+      const st = stats.find(function(s){ return s.g === x.g; });
+      if (!st){ svgText(svg, labelW, cy + 3.5, 'n = ' + x.v.length + ' (insuficiente)', { 'font-size':9.5 }); return; }
+      const isMin = usable.length > 1 && st.sd === minSd, isMax = usable.length > 1 && st.sd === maxSd;
+      const col = isMin ? 'var(--series-3)' : isMax ? 'var(--series-2)' : 'var(--series-1)';
+      svg.appendChild(svgEl('line', { x1:sx(st.wLo), x2:sx(st.wHi), y1:cy, y2:cy, stroke:'var(--ink-muted)', 'stroke-width':1.1 }));
+      const bx = svgEl('rect', { x:sx(st.q1), y:cy - 8, width:Math.max(sx(st.q3) - sx(st.q1), 2), height:16, rx:3, fill:col, 'fill-opacity':0.25, stroke:col, style:'cursor:pointer;' });
+      hover(bx, function(){ return '<strong>' + esc(x.g) + '</strong> (n = ' + st.n + ')<br>Media ' + fmt(st.mean, o.dec) + ' · DT ' + fmt(st.sd, o.dec) + '<br>Q1 ' + fmt(st.q1, o.dec) + ' · Me ' + fmt(st.median, o.dec) + ' · Q3 ' + fmt(st.q3, o.dec) + '<br>RIC ' + fmt(st.iqr, o.dec); });
+      svg.appendChild(bx);
+      svg.appendChild(svgEl('line', { x1:sx(st.median), x2:sx(st.median), y1:cy - 8, y2:cy + 8, stroke:col, 'stroke-width':2.5 }));
+      const mx = sx(st.mean);
+      svg.appendChild(svgEl('path', { d:'M' + mx + ',' + (cy - 4) + ' l4,4 l-4,4 l-4,-4 z', fill:'#fff', stroke:'var(--ink-primary)', 'stroke-width':1, 'pointer-events':'none' }));
+      st.outliers.forEach(function(v){ svg.appendChild(svgEl('circle', { cx:sx(v), cy:cy, r:2.8, fill:'var(--ufv-accent)' })); });
+      const tag = isMin ? ' · más homogéneo' : isMax ? ' · más disperso' : '';
+      svgText(svg, labelW + plotW + 10, cy + 3.5, 'DT ' + fmt(st.sd, o.dec) + ' · n ' + st.n + tag, { 'font-size':9.5, fill:isMin ? '#0d6b49' : isMax ? '#9a3a10' : 'var(--ink-secondary)', 'font-weight':tag ? 700 : 400 });
+    });
+    container.appendChild(svg);
+  }
+
+  function renderDispersion(){
+    const key = document.getElementById('dispVar').value, o = DISP_VARS[key];
+    const rows = window.currentGroupRows || [];
+    const vals = dispValues(rows, key);
+    document.getElementById('dispTitle1').textContent = 'Cada persona respecto a la media — ' + o.label + ' (' + (activeGroup === 'Todos' ? 'todos los grupos' : (activeGroup.length === 1 ? 'grupo ' + activeGroup : activeGroup)) + ')';
+    renderDispDots(document.getElementById('chartDispDots'), vals, o);
+    renderBoxPlot(document.getElementById('chartDispBox'), vals, o);
+    renderDispTable(document.getElementById('tableDisp'), vals, o);
+    renderGroupBoxes(document.getElementById('chartDispGroups'), key, o);
+  }
+  function populateDispSelector(){
+    const sel = document.getElementById('dispVar');
+    Object.keys(DISP_VARS).forEach(function(k){ const op = document.createElement('option'); op.value = k; op.textContent = DISP_VARS[k].label; sel.appendChild(op); });
+    sel.value = 'satisfaccion_general';
+    sel.addEventListener('change', function(){ hideTooltip(); renderDispersion(); });
   }
 
   // ==========================================================================
@@ -1245,6 +1505,7 @@
   setInterval(function(){ if (mode === 'live') updateStatus(); }, 5000);
 
   populateContingencySelectors();
+  populateDispSelector();
   renderTabs();
   renderGroup(activeGroup);
   updateStatus();
