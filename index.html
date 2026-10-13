@@ -7,7 +7,7 @@
 
 <!--
   ============================================================================
-  INSTRUCCIONES (v2)
+  INSTRUCCIONES (v3 · organizado por pestañas)
   ============================================================================
   1) LOGO: va incrustado en la constante LOGO_SRC (primera línea del
      <script>), así que no depende de ninguna carpeta. Si fallara, se
@@ -44,6 +44,12 @@
                 .setMimeType(ContentService.MimeType.JSON);
        }
      (Desplegar como aplicación web, acceso "Cualquier usuario".)
+
+  5) PESTAÑAS: siguen el orden del Tema 3 → 1 Resumen · 2 Frecuencias ·
+     3 Posición · 4 Tendencia central · 5 Dispersión · 6 Forma · 7 Relaciones.
+     Atajos: teclas 1–7, flechas ← →, F = pantalla completa. Se puede abrir
+     directamente una pestaña con #dispersion al final de la URL.
+     El botón "Tamaño" agranda todo para el proyector.
 
   4) Se refresca cada 15 s mientras la pestaña está visible (se pausa si
      cambias de pestaña) y solo se redibuja si los datos han cambiado.
@@ -176,120 +182,229 @@
   .disp-kpi{ flex:1 1 110px; background:#fdf6e3; color:#6b4e00; border-radius:10px; padding:6px 10px; font-size:11px; line-height:1.25; }
   .disp-kpi strong{ display:block; font-size:17px; }
   .freq-table td.expl{ white-space:normal; color:var(--ink-secondary); font-size:10.5px; min-width:150px; }
+  /* ===================== v3 · pestañas ===================== */
+  @media (max-width:700px){ header{ position:static; } }
+  header{ padding:10px 20px 0; }
+  .header-top{ display:flex; align-items:center; justify-content:space-between; gap:10px 16px; flex-wrap:wrap; }
+  .header-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  #logo, .logo-placeholder{ height:40px; }
+  header h1{ font-size:18px; }
+  header p{ font-size:12px; }
+  .tabs-scroll{ margin-top:8px; }
+  .tab-btn{ padding:6px 14px; font-size:13px; }
+  .sec-tabs{ display:flex; gap:4px; overflow-x:auto; margin-top:10px; }
+  .sec-btn{ flex:0 0 auto; display:inline-flex; align-items:center; gap:8px; padding:10px 16px 11px; border:0; border-radius:12px 12px 0 0;
+            background:rgba(255,255,255,.09); color:#fff; font-family:inherit; font-size:15px; font-weight:600; cursor:pointer; }
+  .sec-btn:hover{ background:rgba(255,255,255,.16); }
+  .sec-btn .sec-num{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:6px; background:rgba(255,255,255,.2); font-size:11.5px; }
+  .sec-btn.is-checked{ background:var(--bg); color:var(--ufv-blue); }
+  .sec-btn.is-checked .sec-num{ background:var(--ufv-blue); color:#fff; }
+
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; animation:panelIn .18s ease-out; }
+  @keyframes panelIn{ from{ opacity:0; transform:translateY(4px); } to{ opacity:1; transform:none; } }
+  @media (prefers-reduced-motion: reduce){ .tab-panel.active{ animation:none; } }
+  .panel-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:10px 16px; flex-wrap:wrap; margin:2px 0 10px; }
+  .panel-head h2{ font-size:21px; color:var(--ufv-blue); margin:0; line-height:1.25; }
+  .panel-sub{ font-size:12.5px; color:var(--muted); margin:3px 0 0; }
+  .var-bar{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--muted); font-weight:600; }
+  .var-bar select, .cmp-controls select{ padding:7px 10px; font-size:14px; border:1.5px solid var(--border); border-radius:10px; background:#fff; font-family:inherit; color:var(--text); max-width:100%; }
+  .var-bar select{ min-width:min(300px, 70vw); }
+  .prompt{ background:#fff; border:1px solid var(--border); border-left:4px solid var(--ufv-accent); border-radius:10px; padding:10px 14px; margin-bottom:12px; font-size:14px; line-height:1.45; }
+  .prompt .q{ color:var(--ufv-accent); }
+  .sw-note{ margin-top:12px; font-size:11.5px; color:var(--muted); background:#fff; border:1px dashed var(--border); border-radius:10px; padding:8px 12px; line-height:1.6; }
+  .sw-note code{ background:var(--bg); padding:1px 6px; border-radius:4px; font-size:11px; color:var(--text); }
+  .seg{ display:inline-flex; border:1.5px solid var(--border); border-radius:999px; overflow:hidden; margin:4px 0 6px; }
+  .seg button{ border:0; background:#fff; padding:5px 13px; font-size:12px; cursor:pointer; font-family:inherit; color:var(--ink-secondary); }
+  .seg button.on{ background:var(--ufv-blue); color:#fff; }
+  .calc-row{ margin:6px 0 14px; }
+  .calc-row label{ display:block; font-size:12px; color:var(--muted); margin-bottom:5px; }
+  .calc-row input{ width:120px; padding:8px 10px; font-size:17px; border:1.5px solid var(--border); border-radius:10px; font-family:inherit; }
+  .calc-out{ margin-top:7px; font-size:13px; line-height:1.45; background:var(--ufv-blue-light); color:var(--ufv-blue); border-radius:10px; padding:8px 11px; }
+  .headlines{ margin:6px 0 0; padding-left:20px; font-size:15.5px; line-height:1.65; }
+  .apa-line{ margin-top:8px; font-size:14px; background:var(--bg); border-radius:10px; padding:8px 12px; line-height:1.5; }
+  .apa-hint{ font-size:12.5px; color:var(--ink-secondary); margin-top:6px; line-height:1.45; }
+  .calc-steps{ margin-top:8px; font-size:12px; background:var(--bg); border-radius:10px; padding:8px 12px; line-height:1.55; color:var(--ink-secondary); }
+  .rule-row{ margin:10px 0 14px; }
+  .rule-label{ font-size:12px; margin-bottom:5px; color:var(--ink-secondary); }
+  .rule-track{ position:relative; height:16px; background:#f0efeb; border-radius:8px; }
+  .rule-fill{ position:absolute; left:0; top:0; bottom:0; background:var(--series-1); border-radius:8px; }
+  .rule-mark{ position:absolute; top:-4px; bottom:-4px; width:2.5px; margin-left:-1px; background:var(--ufv-accent); border-radius:2px; }
+  .rule-txt{ font-size:11.5px; color:var(--ink-secondary); margin-top:4px; }
+  .shape-card{ border:1px solid var(--border); border-radius:10px; padding:8px 11px; margin-bottom:8px; }
+  .shape-card .val{ font-size:22px; font-weight:700; color:var(--ufv-blue); }
+  .shape-card .tag{ display:inline-block; vertical-align:middle; font-size:11px; font-weight:700; padding:2px 9px; border-radius:999px; background:#fdf6e3; color:#6b4e00; margin-left:8px; }
+  .shape-name{ font-size:11.5px; color:var(--muted); font-weight:600; }
+  .shape-card p{ margin:4px 0 0; font-size:12px; color:var(--ink-secondary); line-height:1.45; }
+  .cmp-controls{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; font-size:12.5px; color:var(--muted); margin:4px 0 8px; }
+  .cmp-sentence{ font-size:13px; margin-top:8px; background:var(--bg); border-radius:10px; padding:8px 12px; line-height:1.5; }
+  .freq-table tr.is-active td{ background:var(--ufv-blue-light); font-weight:700; }
+  .freq-table td.nvalid{ font-size:10.5px; color:var(--ink-muted); border-bottom:0; padding-top:6px; white-space:normal; }
+  .freq-table td.expl{ white-space:normal; color:var(--ink-secondary); font-size:10.5px; min-width:150px; }
+  .mini-kpis{ display:flex; gap:8px; flex-wrap:wrap; margin:4px 0 8px; }
+  .mini-kpi{ flex:1 1 110px; background:var(--ufv-blue-light); color:var(--ufv-blue); border-radius:10px; padding:6px 10px; font-size:11px; line-height:1.25; }
+  .mini-kpi strong{ display:block; font-size:17px; }
+  .tab-panel .tile-grid{ grid-auto-flow:dense; grid-template-columns:repeat(auto-fill, minmax(min(360px,100%),1fr)); }
+  #tableDisp .freq-table td:first-child{ min-width:130px; }
+  .disp-kpis{ display:flex; gap:8px; flex-wrap:wrap; margin:4px 0 8px; }
+  .disp-kpi{ flex:1 1 110px; background:#fdf6e3; color:#6b4e00; border-radius:10px; padding:6px 10px; font-size:11px; line-height:1.25; }
+  .disp-kpi strong{ display:block; font-size:17px; }
+  footer b{ color:var(--text); }
+
 </style>
 </head>
 <body>
 
 <header>
   <div class="header-inner">
-    <div class="header-row">
-      <img id="logo" alt="Universidad Francisco de Vitoria">
-      <span id="logo-fallback" class="logo-placeholder">UFV</span>
-      <div>
-        <h1>Panel de resultados — ¿La universidad es como la imaginabas?</h1>
-        <p>Facultad de Psicología y Educación · Fundamentos de Investigación en Psicología · Tema 3</p>
+    <div class="header-top">
+      <div class="header-row">
+        <img id="logo" alt="Universidad Francisco de Vitoria">
+        <span id="logo-fallback" class="logo-placeholder">UFV</span>
+        <div>
+          <h1>¿La universidad es como la imaginabas? — Resultados en directo</h1>
+          <p>Fundamentos de Investigación en Psicología · Tema 3 · El proceso de análisis descriptivo de los datos</p>
+        </div>
       </div>
-    </div>
-    <div class="status-row">
-      <span class="status-pill loading" id="statusPill"><span class="status-dot"></span><span id="statusText">Conectando…</span></span>
-      <div class="header-btns">
-        <button type="button" class="hbtn" id="btnRefrescar">Actualizar ahora</button>
+      <div class="header-actions">
+        <span class="status-pill loading" id="statusPill"><span class="status-dot"></span><span id="statusText">Conectando…</span></span>
+        <button type="button" class="hbtn" id="btnRefrescar" title="Volver a pedir los datos">Actualizar</button>
+        <button type="button" class="hbtn" id="btnZoom" title="Agrandar para el proyector">Tamaño 100%</button>
+        <button type="button" class="hbtn" id="btnFull" title="Pantalla completa (tecla F)">Pantalla completa</button>
       </div>
     </div>
     <div class="tabs-scroll" id="tabsRow"></div>
+    <nav class="sec-tabs" id="secTabs" aria-label="Secciones"></nav>
   </div>
 </header>
 
 <main>
   <div class="banner" id="banner"></div>
-  <div class="kpi-row" id="kpiRow"></div>
 
-  <!-- BLOQUE A -->
-  <div class="tile-section block-a">
-    <div class="section-head"><span class="section-badge">A</span><span class="section-title">Sobre las personas encuestadas</span><span class="section-sub">— variables categóricas: quiénes son</span></div>
+  <!-- ============================ 1 · RESUMEN ============================ -->
+  <section class="tab-panel" id="panel-resumen">
+    <div class="panel-head">
+      <div><h2>¿Es la universidad como nos la habían contado?</h2><p class="panel-sub">Lo que habéis recogido por el campus — <span class="group-label"></span></p></div>
+    </div>
+    <div class="prompt"><b class="q">Pregunta guía:</b> ¿Estamos ilusionados o desilusionados con la universidad? Antes de mirar los números, ¿qué esperáis encontrar?</div>
+    <div class="kpi-row" id="kpiRow"></div>
+    <div class="tile-grid">
+      <div class="tile tile-wide"><h3>Titulares del día</h3><p class="tile-note">Se escriben solos a partir de los datos del grupo seleccionado.</p><ul class="headlines" id="headlines"></ul></div>
+      <div class="tile"><h3>Encuestas por grupo</h3><p class="tile-note">Todos los grupos, sea cual sea la pestaña activa.</p><div id="chartRespGrupo"></div></div>
+      <div class="tile tile-wide"><h3>Ritmo de recogida</h3><p class="tile-note">Encuestas acumuladas a lo largo de la sesión más reciente. Pasa el ratón por la línea para ver la hora.</p><div id="chartRitmo"></div></div>
+      <div class="tile"><h3>Encuestadores/as más activos</h3><p class="tile-note">Iniciales + dos dígitos, tal como se escribieron en el formulario.</p><div id="chartEncuestadores"></div></div>
+    </div>
+  </section>
+
+  <!-- ============================ 2 · FRECUENCIAS ============================ -->
+  <section class="tab-panel" id="panel-frecuencias">
+    <div class="panel-head">
+      <div><h2>Distribución de frecuencias y tablas de contingencia</h2><p class="panel-sub">Variables cualitativas: quiénes son y qué responden — <span class="group-label"></span></p></div>
+    </div>
+    <div class="prompt"><b class="q">Para comentar:</b> ¿cuál es la categoría más frecuente? ¿Cada porcentaje se calcula sobre el total o sobre los casos válidos? En la tabla de contingencia, ¿sobre qué total se calcula cada %? Indica siempre el denominador.</div>
     <div class="tile-grid">
       <div class="tile"><h3>Sexo</h3><div id="chartSexo"></div></div>
       <div class="tile"><h3>¿En qué universidad estudia?</h3><div id="chartA1"></div></div>
-      <div class="tile"><h3>Facultad</h3><p class="tile-note">Ordenada de mayor a menor frecuencia; Acum. = % acumulado hasta esa fila.</p><div class="table-scroll" id="tableA2"></div></div>
+      <div class="tile"><h3>Facultad</h3><p class="tile-note">De mayor a menor frecuencia. Acum. = % acumulado (aquí solo orienta: la facultad no es una variable ordenada).</p><div class="table-scroll" id="tableA2"></div></div>
       <div class="tile"><h3>Curso</h3><div id="chartA3"></div></div>
       <div class="tile tile-wide">
         <h3>¿De dónde sacaron la idea de la vida universitaria? (hasta 3 opciones, por prioridad)</h3>
-        <p class="tile-note">Longitud = puntuación de prioridad (3 pts si fue 1ª opción, 2 si 2ª, 1 si 3ª).</p>
+        <p class="tile-note">Longitud = puntuación de prioridad (3 pts si fue la 1ª opción, 2 si fue la 2ª, 1 si fue la 3ª).</p>
         <div id="chartA4"></div><div class="table-scroll" id="tableA4"></div>
       </div>
-    </div>
-  </div>
-
-  <!-- BLOQUE B -->
-  <div class="tile-section block-b">
-    <div class="section-head"><span class="section-badge">B</span><span class="section-title">Hábitos: expectativa vs. realidad</span><span class="section-sub">— variables cuantitativas: medias, dispersión y posición</span></div>
-    <div class="tile-grid">
-      <div class="tile"><h3>Horas de estudio: imaginadas vs. reales (media semanal)</h3><div id="chartB1B2"></div></div>
-      <div class="tile tile-wide">
-        <h3>Distribución de horas de estudio reales (con percentiles)</h3>
-        <p class="tile-note">Curva de densidad estimada. Línea continua = mediana; discontinuas = P25 y P75. Pasa el ratón por la curva para ver en qué percentil cae cualquier valor.</p>
-        <div id="chartHorasDensidad"></div>
-      </div>
-      <div class="tile tile-wide">
-        <h3>¿Estudian más o menos de lo que imaginaban? (horas reales − horas imaginadas)</h3>
-        <p class="tile-note">Cada punto es una persona. A la izquierda del 0, estudia <b>menos</b> de lo que imaginaba; a la derecha, <b>más</b>. Pasa el ratón por un punto para ver sus horas.</p>
-        <div id="chartDiff"></div>
-      </div>
-      <div class="tile"><h3>Resumen numérico — fiestas y socialización</h3><div class="table-scroll" id="statsB"></div></div>
-    </div>
-  </div>
-
-  <!-- BLOQUE C -->
-  <div class="tile-section block-c">
-    <div class="section-head"><span class="section-badge">C</span><span class="section-title">Percepciones</span><span class="section-sub">— variables ordinales: frecuencias acumuladas</span></div>
-    <div class="tile-grid">
-      <div class="tile tile-wide">
-        <h3>Puntuación global de satisfacción (suma de 4 ítems, escala 4–28)</h3>
-        <p class="tile-note">Suma de: satisfacción general + coincide con lo imaginado + coincide con las películas + extrañará la universidad (cada uno 1–7). Cada barra = cuántas personas obtienen esa puntuación. Solo cuentan quienes respondieron los 4 ítems.</p>
-        <div id="chartSatisfaccionSuma"></div>
-      </div>
-      <div class="tile"><h3>Sorpresa general</h3><div class="table-scroll" id="tableC3"></div></div>
+      <div class="tile"><h3>Sorpresa general (ordinal)</h3><p class="tile-note">Aquí el % acumulado sí tiene sentido: las categorías están ordenadas.</p><div class="table-scroll" id="tableC3"></div></div>
       <div class="tile">
         <h3>¿Extrañará la vida universitaria? (1–7)</h3>
-        <p class="tile-note">Ejemplo de cómo leer un ítem individual: barras + tabla con frecuencia acumulada.</p>
+        <p class="tile-note">Lectura de un ítem: barras + tabla de frecuencias absolutas (f<sub>i</sub>), relativas (n<sub>i</sub>) y acumuladas (N<sub>i</sub>).</p>
         <div id="chartC4"></div><div class="table-scroll" id="tableC4"></div>
       </div>
     </div>
-  </div>
+    <section class="card" style="margin-top:12px">
+      <h2>Explorador de tablas de contingencia</h2>
+      <p class="card-sub">Cruza dos variables cualitativas (nominales u ordinales): recuento y % por fila. Cuanto más intenso el azul, más casos en la celda.</p>
+      <div class="cont-controls">
+        <div><label for="contX">Variable en columnas</label><select id="contX"></select></div>
+        <div><label for="contY">Variable en filas</label><select id="contY"></select></div>
+      </div>
+      <div id="contingencyContainer"></div>
+    </section>
+    <p class="sw-note"><b>En SPSS:</b> <code>Analizar › Estadísticos descriptivos › Frecuencias</code> · tablas cruzadas: <code>Analizar › Estadísticos descriptivos › Tablas cruzadas</code>.<br><b>En jamovi:</b> <code>Análisis › Exploración › Descriptivas</code> · contingencia: <code>Análisis › Frecuencias › Muestras independientes</code>.</p>
+  </section>
 
-  <!-- BLOQUE D -->
-  <div class="tile-section block-d">
-    <div class="section-head"><span class="section-badge">D</span><span class="section-title">Comparaciones y correlaciones</span><span class="section-sub">— relación entre dos variables</span></div>
+  <!-- ============================ 3 · POSICIÓN ============================ -->
+  <section class="tab-panel" id="panel-posicion">
+    <div class="panel-head">
+      <div><h2>Medidas de posición: cuartiles y percentiles</h2><p class="panel-sub">¿Dónde se sitúa una puntuación respecto al grupo? — <span class="group-label"></span></p></div>
+      <label class="var-bar">Variable <select class="var-select"></select></label>
+    </div>
+    <div class="prompt"><b class="q">Para comentar:</b> si alguien del grupo obtiene cierta puntuación, ¿está por encima o por debajo de la mayoría? Recuerda: Q1 = P25, Q2 = P50 = mediana, Q3 = P75.</div>
     <div class="tile-grid">
       <div class="tile tile-wide">
-        <h3>¿Quién estudia más horas — hombres o mujeres? (densidad)</h3>
-        <p class="tile-note">Compara la forma de la distribución de horas reales entre sexos, no solo la media. Curvas discontinuas = menos de 5 personas (poco fiables).</p>
-        <div id="chartDensitySexo"></div>
+        <h3 id="posTitle">Distribución con cuartiles</h3>
+        <div class="seg" id="posView"><button type="button" data-v="hist" class="on">Histograma</button><button type="button" data-v="kde">Curva de densidad</button></div>
+        <p class="tile-note">Los tres cuartiles dividen los datos ordenados en cuatro partes con aproximadamente el 25 % de los casos cada una. Pasa el ratón por las barras (o por la curva) para ver en qué percentil cae cada valor.</p>
+        <div id="chartPos"></div>
       </div>
-      <div class="tile"><h3>Fiestas del último mes vs. satisfacción general</h3><div id="rCorrFiestas" class="corr-stat">r = —</div><div id="chartCorrFiestas"></div></div>
-      <div class="tile"><h3>Horas de estudio reales vs. satisfacción general</h3><div id="rCorrHoras" class="corr-stat">r = —</div><div id="chartCorrHoras"></div></div>
+      <div class="tile">
+        <h3>Calculadora de percentiles</h3>
+        <div class="calc-row">
+          <label for="calcVal">¿En qué percentil cae esta puntuación?</label>
+          <input type="text" inputmode="decimal" id="calcVal" value="5">
+          <div class="calc-out" id="calcOut1"></div>
+        </div>
+        <div class="calc-row">
+          <label for="calcK">¿Qué puntuación corresponde a este percentil? (1–99)</label>
+          <input type="text" inputmode="numeric" id="calcK" value="90">
+          <div class="calc-out" id="calcOut2"></div>
+        </div>
+      </div>
+      <div class="tile"><h3>Cuartiles y percentiles</h3><div class="table-scroll" id="tablePos"></div></div>
     </div>
-    <p class="tile-note" style="margin:8px 2px 0;">r = correlación de Pearson (−1 a 1). Orientativo: |r| &lt; 0,1 prácticamente nula · 0,1–0,3 débil · 0,3–0,5 moderada · &gt; 0,5 fuerte. Los puntos llevan un pequeño desplazamiento aleatorio para que no se tapen respuestas iguales. Correlación no implica causalidad.</p>
-  </div>
+    <p class="sw-note"><b>En SPSS:</b> <code>Analizar › Estadísticos descriptivos › Frecuencias › Estadísticos › Cuartiles</code> (o escribe un percentil y pulsa <i>Añadir</i>).<br><b>En jamovi:</b> <code>Análisis › Exploración › Descriptivas › Estadísticas › Valores del percentil / Puntos de corte</code>. El método de cálculo puede dar valores ligeramente distintos a los de este panel.</p>
+  </section>
 
-  <!-- BLOQUE E — Dispersión -->
-  <div class="tile-section block-e">
-    <div class="section-head">
-      <span class="section-badge">E</span><span class="section-title">Dispersión</span>
-      <span class="section-sub">— ¿las respuestas se parecen entre sí o están muy repartidas?</span>
-      <label class="disp-select">Variable:
-        <select id="dispVar"></select>
-      </label>
+  <!-- ============================ 4 · TENDENCIA CENTRAL ============================ -->
+  <section class="tab-panel" id="panel-central">
+    <div class="panel-head">
+      <div><h2>Medidas de tendencia central: media, mediana y moda</h2><p class="panel-sub">Un solo número para resumir al grupo — <span class="group-label"></span></p></div>
+      <label class="var-bar">Variable <select class="var-select"></select></label>
     </div>
+    <div class="prompt"><b class="q">Para comentar:</b> ¿qué valor resume mejor al grupo: la media, la mediana o la moda? ¿Coinciden? Si no, ¿por qué?</div>
+    <div class="tile-grid">
+      <div class="tile tile-wide">
+        <h3 id="centralTitle">Media, mediana y moda</h3>
+        <div id="chartCentral"></div>
+        <div class="apa-line" id="apaCentral"></div>
+        <div class="apa-hint" id="apaHint"></div>
+      </div>
+      <div class="tile"><h3>Comparación por grupos</h3><p class="tile-note">La fila resaltada es el grupo seleccionado.</p><div class="table-scroll" id="tableCentralGroups"></div></div>
+      <div class="tile"><h3>Horas de estudio: imaginadas vs. reales (media semanal)</h3><div id="chartB1B2"></div></div>
+      <div class="tile tile-wide">
+        <h3>Expectativa vs. realidad: ¿estudian más o menos de lo que imaginaban? (horas reales − imaginadas)</h3>
+        <p class="tile-note">Cada punto es una persona. A la izquierda del 0 estudia <b>menos</b> de lo que imaginaba; a la derecha, <b>más</b>. Pasa el ratón por un punto para ver sus horas.</p>
+        <div id="chartDiff"></div>
+      </div>
+      <div class="tile tile-wide"><h3>Resumen numérico: fiestas y socialización</h3><div class="table-scroll" id="statsB"></div></div>
+    </div>
+    <p class="sw-note"><b>En SPSS:</b> <code>Analizar › Estadísticos descriptivos › Frecuencias › Estadísticos › Media, Mediana, Moda</code>.<br><b>En jamovi:</b> <code>Análisis › Exploración › Descriptivas › Estadísticas › Tendencia central</code>. En APA: <i>M</i>, <i>Mdn</i>, <i>Mo</i>.</p>
+  </section>
+
+  <!-- ============================ 5 · DISPERSIÓN ============================ -->
+  <section class="tab-panel" id="panel-dispersion">
+    <div class="panel-head">
+      <div><h2>Medidas de dispersión</h2><p class="panel-sub">¿Las respuestas se parecen entre sí o están muy repartidas? — <span class="group-label"></span></p></div>
+      <label class="var-bar">Variable <select class="var-select"></select></label>
+    </div>
+    <div class="prompt"><b class="q">El reto:</b> ¿en qué grupo se parecen más las respuestas? ¿Cuál presenta mayores diferencias entre sus integrantes? ¿Por qué la media, por sí sola, no cuenta toda la historia?</div>
     <div class="tile-grid">
       <div class="tile tile-wide">
         <h3 id="dispTitle1">Cada persona respecto a la media</h3>
-        <p class="tile-note">Cada punto es una persona. Franja oscura = media ± 1 desviación típica (DT); franja clara = ± 2 DT. Los puntos naranjas se alejan más de 1 DT de la media; los rojos, más de 2 DT. Pasa el ratón por un punto para ver su desviación y su puntuación z.</p>
+        <p class="tile-note">Cada punto es una persona. Franja oscura = media ± 1 desviación estándar (DT); franja clara = ± 2 DT. Los puntos naranjas se alejan más de 1 DT de la media y los rojos, más de 2 DT. Pasa el ratón por un punto para ver su desviación respecto a la media (x<sub>i</sub> − M).</p>
         <div id="chartDispDots"></div>
       </div>
       <div class="tile">
         <h3>Diagrama de caja y bigotes</h3>
-        <p class="tile-note">Caja = 50% central (de Q1 a Q3). Su anchura es el rango intercuartílico (RIC). Bigotes = valores no atípicos más extremos; puntos rojos = atípicos (a más de 1,5 × RIC de la caja).</p>
+        <p class="tile-note">Caja = 50 % central (de Q1 a Q3); su anchura es el rango intercuartílico (RIC). Bigotes = valores no atípicos más extremos; puntos rojos = atípicos (a más de 1,5 × RIC de la caja).</p>
         <div id="chartDispBox"></div>
       </div>
       <div class="tile tile-wide">
@@ -297,25 +412,71 @@
         <div class="table-scroll" id="tableDisp"></div>
       </div>
       <div class="tile tile-wide">
+        <h3>¿Misma media, distinta dispersión? Compara dos grupos</h3>
+        <p class="tile-note">Como en el ejemplo de las redes sociales: dos grupos pueden tener una media parecida y repartirse de forma muy distinta. Misma escala para los dos.</p>
+        <div class="cmp-controls">Comparar <select id="cmpA"></select> con <select id="cmpB"></select></div>
+        <div id="cmpChart"></div>
+        <div class="table-scroll" id="cmpTable"></div>
+        <div class="cmp-sentence" id="cmpSentence"></div>
+      </div>
+      <div class="tile tile-wide">
         <h3>¿Qué grupo es más homogéneo? (todos los grupos, misma escala)</h3>
-        <p class="tile-note">Una caja estrecha indica respuestas parecidas entre sí (poca dispersión); una caja ancha, respuestas muy distintas. El rombo marca la media. Esta comparación usa siempre todos los grupos, sea cual sea la pestaña activa.</p>
+        <p class="tile-note">Una caja estrecha indica respuestas parecidas entre sí (poca dispersión); una caja ancha, respuestas muy distintas. El rombo marca la media.</p>
         <div id="chartDispGroups"></div>
       </div>
     </div>
-  </div>
+    <p class="sw-note"><b>En SPSS:</b> <code>Analizar › Estadísticos descriptivos › Frecuencias › Estadísticos › Desviación estándar, Varianza, Rango, Mínimo, Máximo</code>.<br><b>En jamovi:</b> <code>Análisis › Exploración › Descriptivas › Estadísticas › Desv. estándar, Varianza, Rango</code>. Ambos programas calculan la varianza y la DT <b>muestrales</b> (÷ n − 1).</p>
+  </section>
 
-  <section class="card">
-    <h2>Explorador de tablas de contingencia</h2>
-    <p class="card-sub">Cruza dos variables categóricas u ordinales — recuento y % por fila.</p>
-    <div class="cont-controls">
-      <div><label for="contX">Variable en columnas</label><select id="contX"></select></div>
-      <div><label for="contY">Variable en filas</label><select id="contY"></select></div>
+  <!-- ============================ 6 · FORMA ============================ -->
+  <section class="tab-panel" id="panel-forma">
+    <div class="panel-head">
+      <div><h2>Distribución normal, asimetría y curtosis</h2><p class="panel-sub">¿Nuestra distribución se parece a la campana? — <span class="group-label"></span></p></div>
+      <label class="var-bar">Variable <select class="var-select"></select></label>
     </div>
-    <div id="contingencyContainer"></div>
+    <div class="prompt"><b class="q">Para comentar:</b> ¿se parece a la campana? ¿Se alarga más hacia un lado (asimetría)? ¿Cómo son sus colas y cuánto pesan los valores extremos (curtosis)?</div>
+    <div class="tile-grid">
+      <div class="tile tile-wide">
+        <h3 id="formaTitle">Histograma frente a la curva normal</h3>
+        <p class="tile-note">Barras = datos observados. Curva = distribución normal teórica con la misma media y DT. Franjas = M ± 1 DT (oscura) y M ± 2 DT (clara).</p>
+        <div id="chartForma"></div>
+      </div>
+      <div class="tile"><h3>Regla 68 – 95</h3><p class="tile-note">En una distribución normal, ≈ 68 % de los casos está entre M ± 1 DT y ≈ 95 %, entre M ± 2 DT. ¿Y en nuestros datos?</p><div id="ruleBox"></div></div>
+      <div class="tile"><h3>Asimetría y curtosis</h3><div id="shapeBox"></div></div>
+    </div>
+    <p class="sw-note"><b>En SPSS:</b> <code>Analizar › Estadísticos descriptivos › Frecuencias › Estadísticos › Asimetría, Curtosis</code> · gráficos: <code>Frecuencias › Gráficos › Histograma</code>.<br><b>En jamovi:</b> <code>Análisis › Exploración › Descriptivas › Estadísticas › Asimetría, Curtosis</code> · <code>Gráficos › Histograma, Densidad, Diagrama de caja</code>.</p>
+  </section>
+
+  <!-- ============================ 7 · RELACIONES ============================ -->
+  <section class="tab-panel" id="panel-relaciones">
+    <div class="panel-head">
+      <div><h2>Comparaciones y relaciones entre variables</h2><p class="panel-sub">¿Van juntas dos variables? — <span class="group-label"></span></p></div>
+    </div>
+    <div class="prompt"><b class="q">Para comentar:</b> ¿las personas que salen más de fiesta están más satisfechas? ¿Y las que estudian más? Ojo: asociación no significa causalidad.</div>
+    <div class="tile-grid">
+      <div class="tile tile-wide">
+        <h3>Mapa de calor de correlaciones</h3>
+        <p class="tile-note">Cada celda es la correlación de Pearson (r) entre dos variables cuantitativas. Azul = relación positiva, naranja = negativa; cuanto más intenso, más fuerte. <b>Haz clic en una celda</b> para ver su diagrama de dispersión.</p>
+        <div id="chartCorrMatrix"></div>
+      </div>
+      <div class="tile tile-wide">
+        <h3>Diagrama de dispersión</h3>
+        <div class="cmp-controls">Eje X <select id="scatX"></select> Eje Y <select id="scatY"></select></div>
+        <div id="rScat" class="corr-stat">r = —</div>
+        <div id="chartScatter"></div>
+      </div>
+      <div class="tile tile-wide">
+        <h3>¿Quién estudia más horas: hombres o mujeres? (densidad)</h3>
+        <p class="tile-note">Compara la forma de la distribución de horas reales entre sexos, no solo la media. Curvas discontinuas = menos de 5 personas (poco fiables).</p>
+        <div id="chartDensitySexo"></div>
+      </div>
+    </div>
+    <p class="tile-note" style="margin:8px 2px 0;">Orientativo para r: |r| &lt; 0,1 prácticamente nula · 0,1–0,3 débil · 0,3–0,5 moderada · &gt; 0,5 fuerte. Los puntos llevan un pequeño desplazamiento aleatorio para que no se tapen respuestas iguales.</p>
   </section>
 </main>
 
-<footer>Universidad Francisco de Vitoria — Facultad de Psicología y Educación. Panel de uso docente.</footer>
+<footer>Universidad Francisco de Vitoria — Facultad de Psicología y Educación. Panel de uso docente · Atajos: teclas <b>1–7</b> para cambiar de pestaña, <b>← →</b> para avanzar o retroceder, <b>F</b> para pantalla completa.</footer>
+
 
 <script>
   // ==========================================================================
@@ -424,7 +585,7 @@
       const w = textW(text, fs) + 6;
       const xv = scaleX(m.v);
       const x = Math.min(width - w / 2 - 2, Math.max(w / 2 + 2, xv));
-      return { x:x, xv:xv, w:w, text:text, strong:!!m.strong };
+      return { x:x, xv:xv, w:w, text:text, strong:!!m.strong, color:m.color, dash:m.dash };
     });
     const lv = assignLevels(items, 6);
     items.forEach(function(it, i){ it.level = lv[i]; });
@@ -434,10 +595,10 @@
   function drawMarkers(svg, lab, yTop, yBottom){
     lab.items.forEach(function(it){
       svg.appendChild(svgEl('line', { x1:it.xv, x2:it.xv, y1:yTop, y2:yBottom,
-        stroke: it.strong ? 'var(--ink-secondary)' : 'var(--ink-muted)', 'stroke-width': it.strong ? 1.8 : 1.1,
-        'stroke-dasharray': it.strong ? 'none' : '4,3', 'pointer-events':'none' }));
+        stroke: it.color || (it.strong ? 'var(--ink-secondary)' : 'var(--ink-muted)'), 'stroke-width': it.strong ? 2 : 1.3,
+        'stroke-dasharray': it.dash != null ? it.dash : (it.strong ? 'none' : '4,3'), 'pointer-events':'none' }));
       svgText(svg, it.x, 11 + it.level * lab.rowH, it.text, { 'text-anchor':'middle', 'font-size':lab.fs,
-        fill: it.strong ? 'var(--ink-primary)' : 'var(--ink-secondary)', 'font-weight': it.strong ? 700 : 400 });
+        fill: it.color || (it.strong ? 'var(--ink-primary)' : 'var(--ink-secondary)'), 'font-weight': it.strong || it.color ? 700 : 400 });
     });
   }
 
@@ -944,7 +1105,7 @@
     let cum = 0;
     let html = '<table class="freq-table"><thead><tr><th>' + esc(opts.head || FIELD_META[key].label) + '</th><th class="num">Abs.</th><th class="num">Rel.</th><th class="num">Acum.</th></tr></thead><tbody>';
     table.forEach(function(t){ cum += t.abs; html += '<tr><td>' + esc(t.label) + '</td><td class="num">' + t.abs + '</td><td class="num">' + fmt(t.rel * 100) + '%</td><td class="num">' + fmt(cum / total * 100) + '%</td></tr>'; });
-    html += '<tr class="totals-row"><td>Total</td><td class="num">' + total + '</td><td class="num">100%</td><td class="num"></td></tr></tbody></table>';
+    html += '<tr class="totals-row"><td>Total</td><td class="num">' + total + '</td><td class="num">100%</td><td class="num"></td></tr>' + '<tr><td colspan="4" class="nvalid">N válido = ' + total + ' · perdidos = ' + (rows.length - total) + (rows.length - total ? ' (los % se calculan sobre los casos válidos)' : '') + '</td></tr></tbody></table>';
     el.innerHTML = html;
   }
   function renderSummaryStats(el, dict){
@@ -997,97 +1158,16 @@
   }
 
   // ==========================================================================
-  // KPIs
-  // ==========================================================================
-  function renderKPIs(rows, diffs){
-    const s1 = numericStats(nums(rows, 'b1_horas_estudio_imaginadas')), s2 = numericStats(nums(rows, 'b2_horas_estudio_reales'));
-    const sd = numericStats(diffs.map(function(p){ return p.d; }));
-    const less = diffs.filter(function(p){ return p.d < 0; }).length;
-    const tile = function(v, l){ return '<div class="kpi-tile"><div class="kpi-value">' + v + '</div><div class="kpi-label">' + l + '</div></div>'; };
-    document.getElementById('kpiRow').innerHTML =
-      tile(rows.length, 'Encuestas registradas') +
-      tile(s1 ? fmt(s1.mean) + ' h' : '—', 'Media horas imaginadas') +
-      tile(s2 ? fmt(s2.mean) + ' h' : '—', 'Media horas reales') +
-      tile(sd ? fmtSigned(sd.mean, 1) + ' h' : '—', 'Diferencia media (real − imaginado)') +
-      tile(diffs.length ? fmt(less / diffs.length * 100, 0) + '%' : '—', 'Estudian menos de lo que imaginaban');
-  }
-
-  // ==========================================================================
-  // Render de grupo
-  // ==========================================================================
-  function rowsFor(group){
-    if (group === 'Todos') return Object.keys(allData).reduce(function(acc, g){ return acc.concat(allData[g] || []); }, []);
-    return allData[group] || [];
-  }
-
-  function renderGroup(group){
-    hideTooltip();
-    const rows = rowsFor(group);
-    window.currentGroupRows = rows;
-
-    const diffs = rows.map(function(r){
-      const img = toNum(r.b1_horas_estudio_imaginadas), real = toNum(r.b2_horas_estudio_reales);
-      return { img:img, real:real, d:Math.round((real - img) * 10) / 10 };
-    }).filter(function(p){ return isFinite(p.img) && isFinite(p.real); });
-
-    renderKPIs(rows, diffs);
-
-    renderFieldChart('chartSexo', rows, 'sexo', 'donut');
-    renderFieldChart('chartA1', rows, 'a1', 'donut');
-    renderFieldTable('tableA2', rows, 'a2', { sortByFreq:true });
-    renderFieldChart('chartA3', rows, 'a3', 'h');
-    const ranked = computeRankedScores(rows, 'a4_mas_importante', 'a4_segunda', 'a4_tercera', FIELD_META.a4_mas_importante.order);
-    renderRankedBarChart(document.getElementById('chartA4'), ranked);
-    renderRankedTable(document.getElementById('tableA4'), ranked, rows.length);
-
-    const b1 = nums(rows, 'b1_horas_estudio_imaginadas'), b2 = nums(rows, 'b2_horas_estudio_reales');
-    const s1 = numericStats(b1), s2 = numericStats(b2);
-    renderComparisonBars(document.getElementById('chartB1B2'), [
-      { label:'Horas imaginadas', value:s1 ? s1.mean : 0, n:b1.length, color:'var(--series-1)' },
-      { label:'Horas reales', value:s2 ? s2.mean : 0, n:b2.length, color:'var(--series-2)' }
-    ]);
-    renderDensityWithPercentiles(document.getElementById('chartHorasDensidad'), b2, { unit:' h', decimals:1, color:'var(--series-1)' });
-    renderDiffDots(document.getElementById('chartDiff'), diffs);
-    renderSummaryStats(document.getElementById('statsB'), { b3_fiestas_ultimo_mes:nums(rows, 'b3_fiestas_ultimo_mes'), b4_horas_socializar:nums(rows, 'b4_horas_socializar') });
-
-    const satSums = rows.map(function(r){
-      const v = SAT_ITEM_KEYS.map(function(k){ return toNum(r[k]); });
-      return v.every(function(x){ return isFinite(x) && x >= 1 && x <= 7; }) ? v.reduce(function(a, b){ return a + b; }, 0) : null;
-    }).filter(function(v){ return v !== null; });
-    renderScoreHistogram(document.getElementById('chartSatisfaccionSuma'), satSums, { min:4, max:28, neutral:16, color:'var(--series-3)' });
-    renderFieldTable('tableC3', rows, 'c3_sorpresa');
-    renderFieldChart('chartC4', rows, 'c4_extranara_vida_universitaria', 'v');
-    renderFieldTable('tableC4', rows, 'c4_extranara_vida_universitaria', { head:'Valor' });
-
-    const sexGroups = categoriesFor(rows, 'sexo').map(function(s, i){
-      return { label:s, color:CATEGORICAL_COLORS[i % 9], values:nums(rows.filter(function(r){ return r.sexo === s; }), 'b2_horas_estudio_reales') };
-    });
-    renderDensityChart(document.getElementById('chartDensitySexo'), sexGroups);
-
-    const corr = function(xKey, chartId, statId, lx){
-      const pts = rows.map(function(r){ return { x:toNum(r[xKey]), y:toNum(r.satisfaccion_general) }; }).filter(function(p){ return isFinite(p.x) && isFinite(p.y); });
-      const r = renderScatterChart(document.getElementById(chartId), pts, lx, 'Satisfacción (1-7)');
-      const el = document.getElementById(statId);
-      el.innerHTML = (r == null) ? 'r = — <span class="corr-desc">(datos insuficientes)</span>' : 'r = ' + fmt(r, 2) + ' <span class="corr-desc">· ' + describeR(r) + ' · n = ' + pts.length + '</span>';
-    };
-    corr('b3_fiestas_ultimo_mes', 'chartCorrFiestas', 'rCorrFiestas', 'Fiestas en el último mes');
-    corr('b2_horas_estudio_reales', 'chartCorrHoras', 'rCorrHoras', 'Horas de estudio reales / semana');
-
-    renderDispersion();
-    renderContingenciaActual();
-  }
-
-  // ==========================================================================
   // BLOQUE E — Dispersión
   // ==========================================================================
   const DISP_VARS = {
-    satisfaccion_general: { label:'Satisfacción general (1–7)', unit:'', dec:2, min:1, max:7, discrete:true, get:function(r){ return toNum(r.satisfaccion_general); } },
-    sat_global: { label:'Puntuación global de satisfacción (4–28)', unit:' pts', dec:1, min:4, max:28, discrete:true, get:function(r){
+    satisfaccion_general: { label:'Satisfacción general (1–7)', unit:'', dec:2, min:1, max:7, neutral:4, discrete:true, get:function(r){ return toNum(r.satisfaccion_general); } },
+    sat_global: { label:'Puntuación global de satisfacción (4–28)', unit:' pts', dec:1, min:4, max:28, neutral:16, discrete:true, get:function(r){
       const v = SAT_ITEM_KEYS.map(function(k){ return toNum(r[k]); });
       return v.every(function(x){ return isFinite(x) && x >= 1 && x <= 7; }) ? v.reduce(function(a, b){ return a + b; }, 0) : NaN; } },
-    c1_coincide_con_lo_imaginado: { label:'Coincide con lo imaginado (1–7)', unit:'', dec:2, min:1, max:7, discrete:true, get:function(r){ return toNum(r.c1_coincide_con_lo_imaginado); } },
-    c2_coincide_con_peliculas: { label:'Coincide con las películas (1–7)', unit:'', dec:2, min:1, max:7, discrete:true, get:function(r){ return toNum(r.c2_coincide_con_peliculas); } },
-    c4_extranara_vida_universitaria: { label:'Extrañará la universidad (1–7)', unit:'', dec:2, min:1, max:7, discrete:true, get:function(r){ return toNum(r.c4_extranara_vida_universitaria); } },
+    c1_coincide_con_lo_imaginado: { label:'Coincide con lo imaginado (1–7)', unit:'', dec:2, min:1, max:7, neutral:4, discrete:true, get:function(r){ return toNum(r.c1_coincide_con_lo_imaginado); } },
+    c2_coincide_con_peliculas: { label:'Coincide con las películas (1–7)', unit:'', dec:2, min:1, max:7, neutral:4, discrete:true, get:function(r){ return toNum(r.c2_coincide_con_peliculas); } },
+    c4_extranara_vida_universitaria: { label:'Extrañará la universidad (1–7)', unit:'', dec:2, min:1, max:7, neutral:4, discrete:true, get:function(r){ return toNum(r.c4_extranara_vida_universitaria); } },
     b2_horas_estudio_reales: { label:'Horas de estudio reales / semana', unit:' h', dec:1, get:function(r){ return toNum(r.b2_horas_estudio_reales); } },
     b1_horas_estudio_imaginadas: { label:'Horas de estudio imaginadas / semana', unit:' h', dec:1, get:function(r){ return toNum(r.b1_horas_estudio_imaginadas); } },
     b3_fiestas_ultimo_mes: { label:'Fiestas en el último mes', unit:'', dec:1, get:function(r){ return toNum(r.b3_fiestas_ultimo_mes); } },
@@ -1118,7 +1198,7 @@
     container.insertAdjacentHTML('beforeend',
       '<div class="disp-kpis">' +
         '<div class="disp-kpi"><strong>' + fmt(s.mean, o.dec) + o.unit + '</strong>media</div>' +
-        '<div class="disp-kpi"><strong>± ' + fmt(sd, o.dec) + o.unit + '</strong>desviación típica (DT)</div>' +
+        '<div class="disp-kpi"><strong>± ' + fmt(sd, o.dec) + o.unit + '</strong>desviación estándar (DT)</div>' +
         '<div class="disp-kpi"><strong>' + fmt(within1 / n * 100, 0) + '%</strong>a menos de 1 DT de la media</div>' +
         '<div class="disp-kpi"><strong>' + fmt(within2 / n * 100, 0) + '%</strong>a menos de 2 DT de la media</div>' +
       '</div>');
@@ -1214,27 +1294,6 @@
     container.insertAdjacentHTML('beforeend', '<div class="chart-legend-inline"><span class="legend-row-inline"><span class="legend-line" style="border-color:var(--series-1-dark);border-top-width:2.5px"></span>mediana</span><span class="legend-row-inline">◇ media</span><span class="legend-row-inline"><span class="legend-swatch" style="background:var(--ufv-accent);border-radius:50%"></span>atípicos: ' + b.outliers.length + '</span></div>');
   }
 
-  // 3) Tabla de medidas con explicación
-  function renderDispTable(el, values, o){
-    if (values.length < 2){ emptyMsg(el, values.length ? 'Se necesitan al menos 2 respuestas.' : null); return; }
-    const b = boxStats(values), n = values.length;
-    const variance = b.sd * b.sd;
-    const mad = values.reduce(function(a, v){ return a + Math.abs(v - b.mean); }, 0) / n;
-    const cv = b.mean > 0 ? b.sd / b.mean * 100 : null;
-    const u = o.unit;
-    const rows = [
-      ['Rango', fmt(b.max - b.min, o.dec) + u, 'Máximo − mínimo (' + fmt(b.max, o.discrete ? 0 : 1) + ' − ' + fmt(b.min, o.discrete ? 0 : 1) + '). Muy sensible a valores extremos.'],
-      ['Rango intercuartílico (RIC)', fmt(b.iqr, o.dec) + u, 'Q3 − Q1: amplitud del 50% central. No le afectan los extremos.'],
-      ['Desviación media', fmt(mad, o.dec) + u, 'Distancia media (sin signo) de cada persona a la media.'],
-      ['Varianza (s²)', fmt(variance, o.dec), 'Media de las desviaciones al cuadrado (con n − 1). Unidades al cuadrado.'],
-      ['Desviación típica (s)', fmt(b.sd, o.dec) + u, 'Raíz de la varianza; en las mismas unidades que la variable.'],
-      ['Coef. de variación (CV)', cv == null ? '—' : fmt(cv, 1) + '%', 'DT / media × 100. Permite comparar dispersión entre variables con distinta escala.']
-    ];
-    let html = '<table class="freq-table"><thead><tr><th>Medida</th><th class="num">Valor</th><th>Qué indica</th></tr></thead><tbody>';
-    rows.forEach(function(r){ html += '<tr><td><b>' + r[0] + '</b></td><td class="num">' + r[1] + '</td><td class="expl">' + r[2] + '</td></tr>'; });
-    el.innerHTML = html + '</tbody></table><p class="tile-note" style="margin-top:6px">n = ' + n + ' respuestas válidas.</p>';
-  }
-
   // 4) Cajas por grupo en la misma escala
   function renderGroupBoxes(container, key, o){
     const groups = GRUPOS.concat(extraGroups).map(function(g){ return { g:g, v:dispValues(allData[g] || [], key) }; });
@@ -1243,7 +1302,7 @@
     clearEl(container);
     const all = [].concat.apply([], usable.map(function(x){ return x.v; }));
     const dom = dispDomain(all, o);
-    const width = widthOf(container, 320), labelW = 62, rightW = 150, padR = 8;
+    const width = widthOf(container, 320), labelW = 62, rightW = 185, padR = 8;
     const plotW = width - labelW - rightW - padR, rowH = 28, padT = 4;
     const sx = function(v){ return labelW + (v - dom[0]) / ((dom[1] - dom[0]) || 1) * plotW; };
     const stats = usable.map(function(x){ return Object.assign({ g:x.g }, boxStats(x.v)); });
@@ -1278,21 +1337,735 @@
     container.appendChild(svg);
   }
 
-  function renderDispersion(){
-    const key = document.getElementById('dispVar').value, o = DISP_VARS[key];
+  // ==========================================================================
+  // Secciones (pestañas) — siguen el orden del Tema 3
+  // ==========================================================================
+  const SECTIONS = [
+    { id:'resumen', label:'Resumen', num:'1' },
+    { id:'frecuencias', label:'Frecuencias', num:'2' },
+    { id:'posicion', label:'Posición', num:'3' },
+    { id:'central', label:'Tendencia central', num:'4' },
+    { id:'dispersion', label:'Dispersión', num:'5' },
+    { id:'forma', label:'Forma', num:'6' },
+    { id:'relaciones', label:'Relaciones', num:'7' }
+  ];
+  let activeSection = 'resumen';
+  let varKey = 'satisfaccion_general';
+  let posView = 'hist';
+  let cmpA = null, cmpB = null;
+  let scatX = 'b3_fiestas_ultimo_mes', scatY = 'satisfaccion_general';
+  let zoomLevel = 1;
+
+  function rowsFor(group){
+    if (group === 'Todos') return Object.keys(allData).reduce(function(acc, g){ return acc.concat(allData[g] || []); }, []);
+    return allData[group] || [];
+  }
+  function groupName(g){ return g === 'Todos' ? 'todos los grupos' : (GRUPOS.indexOf(g) > -1 && g.length === 1 ? 'grupo ' + g : g); }
+  function groupLabel(g){ return GRUPOS.indexOf(g) > -1 && g.length === 1 ? 'Grupo ' + g : g; }
+  function pctTxt(a, b){ return b ? fmt(a / b * 100, 0) + ' %' : '—'; }
+  function valFmt(v, o){ return fmt(v, Number.isInteger(v) ? 0 : (o && o.dec > 1 ? 2 : 1)); }
+
+  function renderGroup(group){
+    hideTooltip();
+    window.currentGroupRows = rowsFor(group);
+    renderActive();
+  }
+  function renderActive(){
     const rows = window.currentGroupRows || [];
-    const vals = dispValues(rows, key);
-    document.getElementById('dispTitle1').textContent = 'Cada persona respecto a la media — ' + o.label + ' (' + (activeGroup === 'Todos' ? 'todos los grupos' : (activeGroup.length === 1 ? 'grupo ' + activeGroup : activeGroup)) + ')';
+    document.querySelectorAll('.group-label').forEach(function(el){ el.textContent = groupName(activeGroup) + ' (n = ' + rows.length + ')'; });
+    const fn = { resumen:renderResumen, frecuencias:renderFrecuencias, posicion:renderPosicion, central:renderCentral,
+                 dispersion:renderDispersionTab, forma:renderForma, relaciones:renderRelaciones }[activeSection];
+    try { fn(rows); } catch(e){ console.error('[Panel UFV] Error dibujando la pestaña', activeSection, e); }
+  }
+  function renderSectionTabs(){
+    const row = document.getElementById('secTabs');
+    row.innerHTML = '';
+    SECTIONS.forEach(function(s){
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'sec-btn' + (s.id === activeSection ? ' is-checked' : '');
+      b.title = 'Tecla ' + s.num;
+      b.innerHTML = '<span class="sec-num">' + s.num + '</span>' + s.label;
+      b.addEventListener('click', function(){ setSection(s.id); });
+      row.appendChild(b);
+    });
+  }
+  function setSection(id){
+    if (!SECTIONS.some(function(s){ return s.id === id; })) return;
+    activeSection = id;
+    document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.toggle('active', p.id === 'panel-' + id); });
+    renderSectionTabs();
+    try { history.replaceState(null, '', '#' + id); } catch(e){}
+    hideTooltip();
+    renderActive();
+  }
+
+  // ---- selector de variable cuantitativa compartido (pestañas 3–6) ----
+  function varMeta(){ return DISP_VARS[varKey]; }
+  function populateVarSelects(){
+    document.querySelectorAll('.var-select').forEach(function(sel){
+      Object.keys(DISP_VARS).forEach(function(k){ const op = document.createElement('option'); op.value = k; op.textContent = DISP_VARS[k].label; sel.appendChild(op); });
+      sel.value = varKey;
+      sel.addEventListener('change', function(){
+        varKey = sel.value;
+        document.querySelectorAll('.var-select').forEach(function(s){ s.value = varKey; });
+        hideTooltip(); renderActive();
+      });
+    });
+  }
+
+  // ==========================================================================
+  // Histograma general con marcas, franjas de DT y curva normal opcional
+  // ==========================================================================
+  function histBins(values, o){
+    const allInt = values.every(function(v){ return Number.isInteger(v); });
+    let lo, hi;
+    if (o.min != null){ lo = o.min; hi = o.max; } else { lo = Math.min.apply(null, values); hi = Math.max.apply(null, values); }
+    if (allInt && (hi - lo) <= 40) return { lo:lo - 0.5, hi:hi + 0.5, w:1, int:true };
+    const w = niceStep((hi - lo) || 1, 14);
+    const L = Math.floor(lo / w) * w;
+    let H = Math.ceil(hi / w) * w; if (H <= hi) H += w;
+    return { lo:L, hi:H, w:w, int:false };
+  }
+  function normalPdf(x, m, s){ return Math.exp(-0.5 * Math.pow((x - m) / s, 2)) / (s * Math.sqrt(2 * Math.PI)); }
+
+  function renderHist(container, values, o, cfg){
+    cfg = cfg || {};
+    if (values.length < (cfg.minN || 1)) return emptyMsg(container, values.length ? 'Se necesitan al menos ' + cfg.minN + ' respuestas.' : null);
+    clearEl(container);
+    const B = histBins(values, o), nb = Math.round((B.hi - B.lo) / B.w);
+    const width = widthOf(container, 320), padL = 30, padR = 12, padB = cfg.axisCaption ? 42 : 28, plotH = cfg.height || 140;
+    const plotW = width - padL - padR, bandPx = plotW / nb;
+    const sx = function(v){ return padL + (v - B.lo) / (B.hi - B.lo) * plotW; };
+    const clampX = function(x){ return Math.max(padL, Math.min(padL + plotW, x)); };
+    const s = numericStats(values), sorted = values.slice().sort(function(a, b){ return a - b; });
+    const lab = layoutMarkerLabels(cfg.marks || [], function(v){ return clampX(sx(v)); }, width, function(v){ return valFmt(v, o); });
+    const padT = Math.max(8, lab.height + 4), height = padT + plotH + padB, y0 = padT + plotH;
+    const counts = new Array(nb).fill(0);
+    values.forEach(function(v){ let k = Math.floor((v - B.lo) / B.w); k = Math.max(0, Math.min(nb - 1, k)); counts[k]++; });
+    let maxY = Math.max(1, Math.max.apply(null, counts));
+    let curve = null;
+    if (cfg.normal && s.sd > 0){
+      curve = [];
+      for (let i = 0; i <= 120; i++){ const x = B.lo + (B.hi - B.lo) * i / 120; curve.push({ x:x, y:values.length * B.w * normalPdf(x, s.mean, s.sd) }); }
+      maxY = Math.max(maxY, Math.max.apply(null, curve.map(function(p){ return p.y; })));
+    }
+    const sy = function(c){ return y0 - (c / maxY) * plotH; };
+    const svg = svgEl('svg', { viewBox:'0 0 ' + width + ' ' + height, width:'100%', height:height });
+
+    if (cfg.bands && s.sd > 0){
+      [[2, '#fdf6e3', 1], [1, '#f6e3ae', 0.8]].forEach(function(b){
+        const x1 = clampX(sx(s.mean - b[0] * s.sd)), x2 = clampX(sx(s.mean + b[0] * s.sd));
+        svg.appendChild(svgEl('rect', { x:x1, y:padT, width:Math.max(0, x2 - x1), height:plotH, fill:b[1], opacity:b[2] }));
+      });
+    }
+    niceTicks(0, maxY, 4).forEach(function(c){
+      if (c !== Math.round(c)) return;
+      const y = sy(c);
+      if (c > 0) svg.appendChild(svgEl('line', { x1:padL, x2:padL + plotW, y1:y, y2:y, stroke:'var(--gridline)' }));
+      svgText(svg, padL - 5, y + 3, c, { 'text-anchor':'end', 'font-size':9 });
+    });
+    if (cfg.neutral != null){
+      const nx = sx(cfg.neutral);
+      svg.appendChild(svgEl('line', { x1:nx, x2:nx, y1:padT, y2:y0, stroke:'var(--ufv-accent)', 'stroke-width':1, 'stroke-dasharray':'2,3', opacity:0.6 }));
+    }
+    const gap = Math.min(2, bandPx * 0.12);
+    counts.forEach(function(c, k){
+      const a = B.lo + k * B.w, b = a + B.w, x = sx(a), h = (c / maxY) * plotH;
+      if (c > 0) svg.appendChild(svgEl('rect', { x:x + gap, y:y0 - h, width:Math.max(1, bandPx - 2 * gap), height:h, rx:2, fill:cfg.color || 'var(--series-1)', 'fill-opacity':cfg.normal ? 0.75 : 1 }));
+      if (c > 0 && bandPx >= 14 && !cfg.normal) svgText(svg, x + bandPx / 2, y0 - h - 3, c, { 'text-anchor':'middle', 'font-size':8.5, fill:'var(--ink-secondary)' });
+      const hit = svgEl('rect', { x:x, y:padT, width:bandPx, height:plotH, fill:'transparent', style:'cursor:pointer;' });
+      hover(hit, function(){
+        const lbl = B.int ? valFmt(a + 0.5, o) + o.unit : '[' + valFmt(a, o) + ', ' + valFmt(b, o) + ')' + o.unit;
+        const upper = B.int ? a + 0.5 : b - 1e-9;
+        return '<strong>' + lbl + '</strong><br>' + c + ' personas (' + fmt(c / values.length * 100) + ' %)' +
+          (cfg.hoverPct ? '<br>el <b>' + fmt(percentileRank(sorted, upper), 0) + ' %</b> obtiene ' + (B.int ? valFmt(a + 0.5, o) : 'menos de ' + valFmt(b, o)) + (B.int ? ' o menos' : '') : '');
+      });
+      svg.appendChild(hit);
+    });
+    if (curve){
+      svg.appendChild(svgEl('polyline', { points:curve.map(function(p){ return sx(p.x) + ',' + sy(p.y); }).join(' '), fill:'none', stroke:'var(--ink-primary)', 'stroke-width':1.8, 'pointer-events':'none' }));
+    }
+    svg.appendChild(svgEl('line', { x1:padL, x2:padL + plotW, y1:y0, y2:y0, stroke:'var(--baseline)' }));
+    lab.items.forEach(function(it){ it.xv = clampX(it.xv); });
+    drawMarkers(svg, lab, padT, y0);
+    if (B.int){
+      const first = Math.ceil(B.lo), last = Math.floor(B.hi);
+      const every = Math.max(1, Math.ceil((textW(String(last), 9.5) + 10) / bandPx));
+      for (let v = first; v <= last; v++){ if ((v - first) % every === 0) svgText(svg, sx(v), y0 + 13, v, { 'text-anchor':'middle' }); }
+    } else {
+      niceTicks(B.lo, B.hi, Math.max(3, Math.floor(plotW / 55))).forEach(function(v){ svgText(svg, sx(v), y0 + 13, valFmt(v, o), { 'text-anchor':'middle' }); });
+    }
+    if (cfg.axisCaption){
+      svgText(svg, padL, y0 + 30, cfg.axisCaption[0], { 'font-size':9.5, fill:'var(--ink-secondary)' });
+      svgText(svg, padL + plotW, y0 + 30, cfg.axisCaption[1], { 'font-size':9.5, fill:'var(--ink-secondary)', 'text-anchor':'end' });
+    }
+    container.appendChild(svg);
+    if (cfg.legend) container.insertAdjacentHTML('beforeend', '<div class="chart-legend-inline">' + cfg.legend + '</div>');
+  }
+  function captionFor(o){
+    if (o.min === 1 && o.max === 7) return ['← 1 = nada', '7 = mucho →'];
+    if (o.min === 4) return ['← menor satisfacción', 'mayor satisfacción →'];
+    return null;
+  }
+
+  // ==========================================================================
+  // 1 · RESUMEN
+  // ==========================================================================
+  function encuestadorOf(r){
+    const k = ['encuestador', 'encuestador/a', 'encuestadora', 'encuestador_a', 'encuestador(a)', 'iniciales'].find(function(k){ return r[k] != null && String(r[k]).trim() !== ''; });
+    return k ? String(r[k]).trim().toUpperCase() : '';
+  }
+  function parseTs(v){
+    if (v == null || v === '') return null;
+    if (v instanceof Date) return v;
+    if (typeof v === 'number') return v > 1e11 ? new Date(v) : null;
+    const s = String(v).trim();
+    const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})[ ,T]+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+    if (m) return new Date(+m[3], +m[2] - 1, +m[1], +m[4], +m[5], +(m[6] || 0));
+    const t = Date.parse(s);
+    return isFinite(t) ? new Date(t) : null;
+  }
+  function tsOf(r){ return parseTs(r.timestamp != null && r.timestamp !== '' ? r.timestamp : (r.marca_temporal != null ? r.marca_temporal : r.fecha)); }
+  function diffPairs(rows){
+    return rows.map(function(r){
+      const img = toNum(r.b1_horas_estudio_imaginadas), real = toNum(r.b2_horas_estudio_reales);
+      return { img:img, real:real, d:Math.round((real - img) * 10) / 10 };
+    }).filter(function(p){ return isFinite(p.img) && isFinite(p.real); });
+  }
+
+  function renderKPIs(rows){
+    const enc = {}; rows.forEach(function(r){ const e = encuestadorOf(r); if (e) enc[e] = 1; });
+    const sat = numericStats(nums(rows, 'satisfaccion_general')), b2 = numericStats(nums(rows, 'b2_horas_estudio_reales'));
+    const d = diffPairs(rows), less = d.filter(function(p){ return p.d < 0; }).length;
+    const tile = function(v, l){ return '<div class="kpi-tile"><div class="kpi-value">' + v + '</div><div class="kpi-label">' + l + '</div></div>'; };
+    document.getElementById('kpiRow').innerHTML =
+      tile(rows.length, 'Encuestas registradas') +
+      tile(Object.keys(enc).length || '—', 'Encuestadores/as distintos') +
+      tile(sat ? fmt(sat.mean, 2) : '—', 'Satisfacción general media (1–7)') +
+      tile(b2 ? fmt(b2.mean) + ' h' : '—', 'Horas de estudio reales (media semanal)') +
+      tile(d.length ? pctTxt(less, d.length) : '—', 'Estudian menos de lo que imaginaban');
+  }
+
+  function renderHeadlines(rows){
+    const el = document.getElementById('headlines');
+    if (!rows.length){ el.innerHTML = '<li class="empty-msg" style="list-style:none">Aún no hay respuestas en este grupo.</li>'; return; }
+    const out = [];
+    const sat = numericStats(nums(rows, 'satisfaccion_general'));
+    if (sat) out.push('La satisfacción general media es <b><i>M</i> = ' + fmt(sat.mean, 2) + '</b> sobre 7 (<i>Mdn</i> = ' + valFmt(sat.median) + ').');
+    const d = diffPairs(rows);
+    if (d.length){
+      const less = d.filter(function(p){ return p.d < 0; }).length, more = d.filter(function(p){ return p.d > 0; }).length;
+      out.push('El <b>' + pctTxt(less, d.length) + '</b> estudia menos horas de las que imaginaba; el ' + pctTxt(more, d.length) + ', más.');
+    }
+    const top = computeRankedScores(rows, 'a4_mas_importante', 'a4_segunda', 'a4_tercera', FIELD_META.a4_mas_importante.order)[0];
+    if (top && top.score > 0) out.push('La principal fuente de expectativas sobre la vida universitaria: <b>«' + esc(top.label) + '»</b>.');
+    const sorp = rows.map(function(r){ return r.c3_sorpresa; }).filter(Boolean);
+    if (sorp.length){
+      const pos = sorp.filter(function(v){ return /positiva/i.test(v); }).length, neg = sorp.filter(function(v){ return /negativa/i.test(v); }).length;
+      out.push('A un <b>' + pctTxt(pos, sorp.length) + '</b> la universidad le ha sorprendido para bien; a un ' + pctTxt(neg, sorp.length) + ', para mal.');
+    }
+    const c1 = numericStats(nums(rows, 'c1_coincide_con_lo_imaginado')), c2 = numericStats(nums(rows, 'c2_coincide_con_peliculas'));
+    if (c1 && c2) out.push('Se parece más a ' + (c1.mean >= c2.mean ? '<b>lo que imaginaban</b> (<i>M</i> = ' + fmt(c1.mean, 2) + ') que a <b>las películas</b> (<i>M</i> = ' + fmt(c2.mean, 2) + ')' : '<b>las películas</b> (<i>M</i> = ' + fmt(c2.mean, 2) + ') que a <b>lo que imaginaban</b> (<i>M</i> = ' + fmt(c1.mean, 2) + ')') + '.');
+    el.innerHTML = out.map(function(t){ return '<li>' + t + '</li>'; }).join('');
+  }
+
+  function renderEncuestadores(el, rows){
+    const counts = {};
+    rows.forEach(function(r){ const e = encuestadorOf(r); if (e) counts[e] = (counts[e] || 0) + 1; });
+    const keys = Object.keys(counts);
+    if (!keys.length) return emptyMsg(el, rows.length ? 'No llega la columna «encuestador» en los datos.' : null);
+    const top = keys.sort(function(a, b){ return counts[b] - counts[a]; }).slice(0, 10).map(function(k){ return { label:k, value:counts[k], pct:counts[k] / rows.length }; });
+    renderHBarChart(el, top);
+    el.insertAdjacentHTML('beforeend', '<p class="tile-note" style="margin-top:4px">' + keys.length + ' encuestadores/as distintos · media de ' + fmt(rows.length / keys.length, 1) + ' encuestas por persona (objetivo: 5).</p>');
+  }
+
+  function renderRitmo(el, rows){
+    const ts = rows.map(tsOf).filter(function(d){ return d && isFinite(d.getTime()); }).map(function(d){ return d.getTime(); }).sort(function(a, b){ return a - b; });
+    if (ts.length < 2) return emptyMsg(el, rows.length ? 'No llegan marcas de tiempo (columna «timestamp» o «Marca temporal»).' : null);
+    const tMax = ts[ts.length - 1];
+    const sess = ts.filter(function(t){ return t >= tMax - 3 * 3600e3; });
+    const t0 = sess[0], t1 = Math.max(tMax, t0 + 60e3);
+    clearEl(el);
+    const ref = (Date.now() - tMax) < 30 * 60e3 ? Date.now() : tMax;
+    const last5 = sess.filter(function(t){ return t >= ref - 5 * 60e3; }).length;
+    const hhmm = function(t){ return new Date(t).toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' }); };
+    el.insertAdjacentHTML('beforeend', '<div class="mini-kpis">' +
+      '<div class="mini-kpi"><strong>' + sess.length + '</strong>encuestas en esta sesión</div>' +
+      '<div class="mini-kpi"><strong>' + last5 + '</strong>en los últimos 5 minutos</div>' +
+      '<div class="mini-kpi"><strong>' + hhmm(t0) + ' – ' + hhmm(tMax) + '</strong>primera y última</div></div>');
+    const width = widthOf(el, 320), height = 150, padL = 32, padR = 12, padT = 10, padB = 24;
+    const plotW = width - padL - padR, plotH = height - padT - padB;
+    const sx = function(t){ return padL + (t - t0) / (t1 - t0) * plotW; };
+    const sy = function(c){ return padT + plotH - c / sess.length * plotH; };
+    const svg = svgEl('svg', { viewBox:'0 0 ' + width + ' ' + height, width:'100%', height:height });
+    niceTicks(0, sess.length, 4).forEach(function(c){
+      if (c !== Math.round(c)) return;
+      svg.appendChild(svgEl('line', { x1:padL, x2:padL + plotW, y1:sy(c), y2:sy(c), stroke:c ? 'var(--gridline)' : 'var(--baseline)' }));
+      svgText(svg, padL - 5, sy(c) + 3, c, { 'text-anchor':'end', 'font-size':9 });
+    });
+    const spanMin = (t1 - t0) / 60e3;
+    const stepMin = [1, 2, 5, 10, 15, 20, 30, 60].find(function(m){ return spanMin / m <= plotW / 60; }) || 60;
+    for (let t = Math.ceil(t0 / (stepMin * 60e3)) * stepMin * 60e3; t <= t1; t += stepMin * 60e3) svgText(svg, sx(t), height - 8, hhmm(t), { 'text-anchor':'middle' });
+    let d = 'M' + sx(t0) + ',' + sy(0);
+    sess.forEach(function(t, i){ d += ' H' + sx(t) + ' V' + sy(i + 1); });
+    d += ' H' + sx(t1);
+    svg.appendChild(svgEl('path', { d:d + ' V' + sy(0) + ' Z', fill:'var(--series-1)', opacity:0.12 }));
+    svg.appendChild(svgEl('path', { d:d, fill:'none', stroke:'var(--series-1)', 'stroke-width':2 }));
+    const ov = svgEl('rect', { x:padL, y:padT, width:plotW, height:plotH, fill:'transparent', style:'cursor:crosshair;' });
+    ov.addEventListener('mousemove', function(e){
+      const rc = svg.getBoundingClientRect(), px = (e.clientX - rc.left) * (width / rc.width);
+      const t = t0 + (px - padL) / plotW * (t1 - t0);
+      const c = sess.filter(function(x){ return x <= t; }).length;
+      showTooltip(e, hhmm(t) + '<br><b>' + c + '</b> encuestas acumuladas');
+    });
+    ov.addEventListener('mouseleave', hideTooltip);
+    svg.appendChild(ov);
+    el.appendChild(svg);
+  }
+
+  function renderResumen(rows){
+    renderKPIs(rows);
+    renderHeadlines(rows);
+    const groups = GRUPOS.concat(extraGroups), tot = totalRows();
+    renderHBarChart(document.getElementById('chartRespGrupo'), groups.map(function(g){ const n = (allData[g] || []).length; return { label:groupLabel(g), value:n, pct:tot ? n / tot : 0 }; }));
+    renderRitmo(document.getElementById('chartRitmo'), rows);
+    renderEncuestadores(document.getElementById('chartEncuestadores'), rows);
+  }
+
+  // ==========================================================================
+  // 2 · FRECUENCIAS
+  // ==========================================================================
+  function renderFrecuencias(rows){
+    renderFieldChart('chartSexo', rows, 'sexo', 'donut');
+    renderFieldChart('chartA1', rows, 'a1', 'donut');
+    renderFieldTable('tableA2', rows, 'a2', { sortByFreq:true });
+    renderFieldChart('chartA3', rows, 'a3', 'h');
+    const ranked = computeRankedScores(rows, 'a4_mas_importante', 'a4_segunda', 'a4_tercera', FIELD_META.a4_mas_importante.order);
+    renderRankedBarChart(document.getElementById('chartA4'), ranked);
+    renderRankedTable(document.getElementById('tableA4'), ranked, rows.length);
+    renderFieldTable('tableC3', rows, 'c3_sorpresa');
+    renderFieldChart('chartC4', rows, 'c4_extranara_vida_universitaria', 'v');
+    renderFieldTable('tableC4', rows, 'c4_extranara_vida_universitaria', { head:'Valor' });
+    renderContingenciaActual();
+  }
+
+  // ==========================================================================
+  // 3 · POSICIÓN
+  // ==========================================================================
+  function renderPosicion(rows){
+    const o = varMeta(), vals = dispValues(rows, varKey), s = numericStats(vals);
+    document.getElementById('posTitle').textContent = o.label + ' — ' + groupName(activeGroup);
+    const el = document.getElementById('chartPos');
+    if (posView === 'kde') renderDensityWithPercentiles(el, vals, { unit:o.unit, decimals:o.discrete ? 1 : o.dec, color:'var(--series-1)' });
+    else renderHist(el, vals, o, {
+      marks: s ? [{ v:s.q1, label:'Q1 = P25:' }, { v:s.median, label:'Q2 = Mdn:', strong:true }, { v:s.q3, label:'Q3 = P75:' }] : [],
+      hoverPct:true, neutral:o.neutral, axisCaption:captionFor(o),
+      legend: s ? '<span class="legend-row-inline">n = ' + s.n + '</span><span class="legend-row-inline"><span class="legend-line"></span>Q2 (mediana)</span><span class="legend-row-inline"><span class="legend-line dash"></span>Q1 y Q3</span>' +
+                  (o.neutral != null ? '<span class="legend-row-inline"><span class="legend-line dash" style="border-color:var(--ufv-accent)"></span>punto medio de la escala (' + o.neutral + ')</span>' : '') : ''
+    });
+    renderPercentileTable(document.getElementById('tablePos'), vals, o);
+    updateCalc();
+  }
+  function renderPercentileTable(el, vals, o){
+    if (!vals.length) return emptyMsg(el);
+    const sorted = vals.slice().sort(function(a, b){ return a - b; });
+    const list = [[10, ''], [25, 'Q1'], [50, 'Q2 = Mdn'], [75, 'Q3'], [90, '']];
+    let html = '<table class="freq-table"><thead><tr><th>Percentil</th><th>Cuartil</th><th class="num">Valor</th></tr></thead><tbody>';
+    list.forEach(function(p){
+      const v = percentile(sorted, p[0]);
+      html += '<tr><td><b>P' + p[0] + '</b></td><td>' + p[1] + '</td><td class="num"><b>' + valFmt(v, o) + o.unit + '</b></td></tr>';
+    });
+    const q1 = percentile(sorted, 25);
+    el.innerHTML = html + '</tbody></table><div class="calc-steps">Lectura: P25 = ' + valFmt(q1, o) + o.unit + ' → aproximadamente el 25 % del grupo obtiene ' + valFmt(q1, o) + ' o menos (y el 75 %, más).</div><p class="tile-note" style="margin-top:6px">n = ' + vals.length + ' · mín ' + valFmt(sorted[0], o) + ' · máx ' + valFmt(sorted[sorted.length - 1], o) + '. Con muchos empates (escalas 1–7) varios percentiles pueden coincidir.</p>';
+  }
+  function updateCalc(){
+    const o = varMeta(), vals = dispValues(window.currentGroupRows || [], varKey);
+    const out1 = document.getElementById('calcOut1'), out2 = document.getElementById('calcOut2');
+    if (!vals.length){ out1.innerHTML = out2.innerHTML = 'Sin datos en este grupo.'; return; }
+    const sorted = vals.slice().sort(function(a, b){ return a - b; });
+    const v = toNum(document.getElementById('calcVal').value);
+    if (isFinite(v)){
+      const pr = percentileRank(sorted, v);
+      out1.innerHTML = 'Una puntuación de <b>' + valFmt(v, o) + o.unit + '</b> deja al <b>' + fmt(pr, 0) + ' %</b> del ' + groupName(activeGroup) + ' en valores iguales o inferiores → aproximadamente <b>P' + Math.max(1, Math.min(99, Math.round(pr))) + '</b>.';
+    } else out1.innerHTML = 'Escribe una puntuación.';
+    const k = toNum(document.getElementById('calcK').value);
+    if (isFinite(k) && k >= 1 && k <= 99){
+      const pv = percentile(sorted, k);
+      out2.innerHTML = '<b>P' + fmt(k, 0) + ' = ' + valFmt(pv, o) + o.unit + '</b>: aproximadamente el ' + fmt(k, 0) + ' % del grupo obtiene esa puntuación o menos.';
+    } else out2.innerHTML = 'Escribe un número entre 1 y 99.';
+  }
+
+  // ==========================================================================
+  // 4 · TENDENCIA CENTRAL
+  // ==========================================================================
+  function modesOf(values){
+    const c = {}; values.forEach(function(v){ c[v] = (c[v] || 0) + 1; });
+    const max = Math.max.apply(null, Object.keys(c).map(function(k){ return c[k]; }));
+    const keys = Object.keys(c).filter(function(k){ return c[k] === max; }).map(Number).sort(function(a, b){ return a - b; });
+    return { modes: (max === 1 && values.length > 1) ? [] : keys, count:max };
+  }
+  function renderCentral(rows){
+    const o = varMeta(), vals = dispValues(rows, varKey), s = numericStats(vals);
+    document.getElementById('centralTitle').textContent = o.label + ' — ' + groupName(activeGroup);
+    const el = document.getElementById('chartCentral'), apa = document.getElementById('apaCentral'), hint = document.getElementById('apaHint');
+    if (!s){ emptyMsg(el); apa.innerHTML = ''; hint.innerHTML = ''; }
+    else {
+      const mo = modesOf(vals);
+      const marks = [{ v:s.mean, label:'M =', strong:true, color:'var(--series-2)', dash:'none' }, { v:s.median, label:'Mdn =', color:'var(--series-1-dark)', dash:'6,3' }]
+        .concat(mo.modes.slice(0, 3).map(function(m){ return { v:m, label:'Mo =', color:'#0d6b49', dash:'2,3' }; }));
+      renderHist(el, vals, o, { marks:marks, color:'var(--series-1-light)', neutral:o.neutral, axisCaption:captionFor(o),
+        legend:'<span class="legend-row-inline"><span class="legend-line" style="border-color:var(--series-2)"></span>media (M)</span><span class="legend-row-inline"><span class="legend-line dash" style="border-color:var(--series-1-dark)"></span>mediana (Mdn)</span><span class="legend-row-inline"><span class="legend-line dash" style="border-color:#0d6b49"></span>moda (Mo)</span>' });
+      apa.innerHTML = 'En formato APA: <b><i>M</i> = ' + fmt(s.mean, 2) + '</b>, <b><i>Mdn</i> = ' + valFmt(s.median, o) + '</b>, <b><i>Mo</i> = ' + (mo.modes.length ? mo.modes.map(function(m){ return valFmt(m, o); }).join(' y ') : '—') + '</b>' +
+        (mo.modes.length > 1 ? ' (varias modas: distribución multimodal)' : (mo.modes.length ? ' (se repite ' + mo.count + ' veces)' : ' (ningún valor se repite)')) + ' · <i>n</i> = ' + s.n;
+      const dlt = s.mean - s.median;
+      hint.innerHTML = Math.abs(dlt) < 0.1 * (s.sd || 1)
+        ? 'La media y la mediana casi coinciden: los datos se reparten de forma bastante equilibrada a ambos lados del centro.'
+        : dlt > 0 ? 'La media es <b>mayor</b> que la mediana: algunos valores altos «tiran» de la media hacia arriba. Lo veremos como <b>asimetría positiva</b> (cola a la derecha).'
+                  : 'La media es <b>menor</b> que la mediana: algunos valores bajos «tiran» de la media hacia abajo. Lo veremos como <b>asimetría negativa</b> (cola a la izquierda).';
+    }
+    renderCentralGroups(document.getElementById('tableCentralGroups'), o);
+    const b1 = nums(rows, 'b1_horas_estudio_imaginadas'), b2 = nums(rows, 'b2_horas_estudio_reales');
+    const s1 = numericStats(b1), s2 = numericStats(b2);
+    renderComparisonBars(document.getElementById('chartB1B2'), [
+      { label:'Horas imaginadas', value:s1 ? s1.mean : 0, n:b1.length, color:'var(--series-1)' },
+      { label:'Horas reales', value:s2 ? s2.mean : 0, n:b2.length, color:'var(--series-2)' }
+    ]);
+    renderDiffDots(document.getElementById('chartDiff'), diffPairs(rows));
+    renderSummaryStats(document.getElementById('statsB'), { b3_fiestas_ultimo_mes:nums(rows, 'b3_fiestas_ultimo_mes'), b4_horas_socializar:nums(rows, 'b4_horas_socializar') });
+  }
+  function renderCentralGroups(el, o){
+    const groups = GRUPOS.concat(extraGroups).concat(['Todos']);
+    let html = '<table class="freq-table"><thead><tr><th>Grupo</th><th class="num"><i>n</i></th><th class="num"><i>M</i></th><th class="num"><i>Mdn</i></th><th class="num"><i>Mo</i></th></tr></thead><tbody>';
+    groups.forEach(function(g){
+      const v = dispValues(rowsFor(g), varKey), s = numericStats(v);
+      const cls = g === activeGroup ? ' class="is-active"' : '';
+      if (!s){ html += '<tr' + cls + '><td>' + esc(g === 'Todos' ? 'Todos' : groupLabel(g)) + '</td><td class="num">0</td><td class="num" colspan="3" style="color:var(--ink-muted)">—</td></tr>'; return; }
+      const mo = modesOf(v);
+      html += '<tr' + cls + '><td>' + esc(g === 'Todos' ? 'Todos' : groupLabel(g)) + '</td><td class="num">' + s.n + '</td><td class="num">' + fmt(s.mean, 2) + '</td><td class="num">' + valFmt(s.median, o) + '</td><td class="num">' + (mo.modes.length ? mo.modes.slice(0, 2).map(function(m){ return valFmt(m, o); }).join(', ') + (mo.modes.length > 2 ? '…' : '') : '—') + '</td></tr>';
+    });
+    el.innerHTML = html + '</tbody></table>';
+  }
+
+  // ==========================================================================
+  // 5 · DISPERSIÓN
+  // ==========================================================================
+  function dispersionMeasures(values){
+    const n = values.length, s = numericStats(values);
+    const ss = values.reduce(function(a, v){ return a + (v - s.mean) * (v - s.mean); }, 0);
+    return { n:n, s:s, ss:ss, rango:s.max - s.min, popVar:ss / n, popSd:Math.sqrt(ss / n), sampVar:n > 1 ? ss / (n - 1) : 0, sampSd:n > 1 ? Math.sqrt(ss / (n - 1)) : 0 };
+  }
+  function renderDispTable(el, values, o){
+    if (values.length < 2){ emptyMsg(el, values.length ? 'Se necesitan al menos 2 respuestas.' : null); return; }
+    const b = boxStats(values), d = dispersionMeasures(values), u = o.unit, u2 = o.unit ? o.unit.trim() + '²' : '';
+    const cv = b.mean > 0 ? d.sampSd / b.mean * 100 : null;
+    const rows = [
+      ['Rango (R)', fmt(d.rango, o.dec) + u, 'x<sub>máx</sub> − x<sub>mín</sub> = ' + valFmt(b.max, o) + ' − ' + valFmt(b.min, o) + '. Solo usa los dos extremos: muy sensible a valores atípicos.'],
+      ['Rango intercuartílico (RIC)', fmt(b.iqr, o.dec) + u, 'Q3 − Q1: amplitud del 50 % central. No le afectan los extremos.'],
+      ['Varianza poblacional (σ²)', fmt(d.popVar, 2) + (u2 ? ' ' + u2 : ''), 'Σ(x<sub>i</sub> − M)² ÷ N. Como en el ejemplo de clase: tratamos al grupo como la población completa.'],
+      ['Desviación estándar poblacional (σ)', fmt(d.popSd, 2) + u, '√σ². La raíz devuelve el resultado a la unidad original.'],
+      ['Varianza muestral (s²)', fmt(d.sampVar, 2) + (u2 ? ' ' + u2 : ''), 'Σ(x<sub>i</sub> − M)² ÷ (n − 1). Es la que dan SPSS y jamovi.'],
+      ['Desviación estándar muestral (s, DT)', fmt(d.sampSd, 2) + u, '√s². Es la DT que usa el resto del panel.'],
+      ['Coeficiente de variación (CV)', cv == null ? '—' : fmt(cv, 1) + ' %', 'DT ÷ M × 100. Sirve para comparar la dispersión de variables con escalas distintas.']
+    ];
+    let html = '<table class="freq-table"><thead><tr><th>Medida</th><th class="num">Valor</th><th>Cómo se calcula / qué indica</th></tr></thead><tbody>';
+    rows.forEach(function(r){ html += '<tr><td><b>' + r[0] + '</b></td><td class="num">' + r[1] + '</td><td class="expl">' + r[2] + '</td></tr>'; });
+    html += '</tbody></table>';
+    html += '<div class="calc-steps"><b>Paso a paso</b> (n = ' + d.n + ', M = ' + fmt(b.mean, 2) + '): suma de las desviaciones al cuadrado Σ(x<sub>i</sub> − M)² = <b>' + fmt(d.ss, 2) + '</b> → σ² = ' + fmt(d.ss, 2) + ' ÷ ' + d.n + ' = <b>' + fmt(d.popVar, 2) + '</b> · s² = ' + fmt(d.ss, 2) + ' ÷ ' + (d.n - 1) + ' = <b>' + fmt(d.sampVar, 2) + '</b>. Con muchos datos, ambas casi coinciden.</div>';
+    el.innerHTML = html;
+  }
+
+  function drawDotStrip(svg, values, o, sx, binW, binPx, yTop, color, title){
+    const s = numericStats(values), sd = dispersionMeasures(values).sampSd;
+    const bins = {};
+    values.slice().sort(function(a, b){ return a - b; }).forEach(function(v){ const k = Math.round(v / binW); (bins[k] = bins[k] || []).push(v); });
+    const r = Math.max(2, Math.min(5.5, binPx / 2 - 1)), step = 2 * r + 1;
+    const maxStack = Math.max.apply(null, Object.keys(bins).map(function(k){ return bins[k].length; }));
+    const h = Math.max(30, maxStack * step + 6);
+    const top = yTop + 20, y0 = top + h;
+    svgText(svg, sx.left, yTop + 13, title, { 'font-size':11.5, 'font-weight':700, fill:'var(--ink-primary)' });
+    const x1 = Math.max(sx.left, sx(s.mean - sd)), x2 = Math.min(sx.right, sx(s.mean + sd));
+    svg.appendChild(svgEl('rect', { x:x1, y:top, width:Math.max(0, x2 - x1), height:h, fill:color, opacity:0.12 }));
+    svg.appendChild(svgEl('line', { x1:sx.left, x2:sx.right, y1:y0, y2:y0, stroke:'var(--baseline)' }));
+    Object.keys(bins).forEach(function(k){
+      bins[k].forEach(function(v, j){
+        const dot = svgEl('circle', { cx:sx(+k * binW), cy:y0 - r - 1 - j * step, r:r, fill:color, stroke:'#fff', 'stroke-width':1, style:'cursor:pointer;' });
+        hover(dot, function(){ return 'Valor: <b>' + valFmt(v, o) + o.unit + '</b><br>x<sub>i</sub> − M = <b>' + fmtSigned(v - s.mean, 2) + '</b>'; });
+        svg.appendChild(dot);
+      });
+    });
+    svg.appendChild(svgEl('line', { x1:sx(s.mean), x2:sx(s.mean), y1:top - 2, y2:y0, stroke:'var(--ink-primary)', 'stroke-width':1.8 }));
+    svgText(svg, sx(s.mean), top - 4, 'M ' + fmt(s.mean, 2), { 'font-size':9.5, 'text-anchor':'middle', fill:'var(--ink-primary)', 'font-weight':700 });
+    return y0 - yTop + 6;
+  }
+  function renderCompareGroups(o){
+    const selA = document.getElementById('cmpA'), selB = document.getElementById('cmpB');
+    const chart = document.getElementById('cmpChart'), table = document.getElementById('cmpTable'), sent = document.getElementById('cmpSentence');
+    const groups = GRUPOS.concat(extraGroups).filter(function(g){ return dispValues(allData[g] || [], varKey).length >= 2; });
+    const sig = groups.join('|');
+    if (selA.dataset.sig !== sig){
+      [selA, selB].forEach(function(sel){ sel.innerHTML = groups.map(function(g){ return '<option value="' + esc(g) + '">' + esc(groupLabel(g)) + '</option>'; }).join(''); sel.dataset.sig = sig; });
+    }
+    if (groups.length < 2){ emptyMsg(chart, 'Se necesitan al menos dos grupos con 2 o más respuestas.'); table.innerHTML = ''; sent.style.display = 'none'; return; }
+    if (!cmpA || groups.indexOf(cmpA) < 0) cmpA = groups[0];
+    if (!cmpB || groups.indexOf(cmpB) < 0 || cmpB === cmpA) cmpB = groups.find(function(g){ return g !== cmpA; });
+    selA.value = cmpA; selB.value = cmpB;
+    const a = dispValues(allData[cmpA], varKey), b = dispValues(allData[cmpB], varKey);
+    clearEl(chart);
+    const width = widthOf(chart, 320), padL = 14, padR = 14, plotW = width - padL - padR;
+    const all = a.concat(b);
+    const binW = o.discrete ? 1 : Math.max(1, niceStep(Math.max.apply(null, all) - Math.min.apply(null, all) || 1, 30));
+    const dom = dispDomain(all, o), lo = dom[0] - binW / 2, hi = dom[1] + binW / 2;
+    const sx = function(v){ return padL + (v - lo) / (hi - lo) * plotW; };
+    sx.left = padL; sx.right = padL + plotW;
+    const binPx = binW / (hi - lo) * plotW;
+    const svg = svgEl('svg', { viewBox:'0 0 ' + width + ' 10', width:'100%' });
+    let y = 0;
+    const da = dispersionMeasures(a), db = dispersionMeasures(b);
+    y += drawDotStrip(svg, a, o, sx, binW, binPx, y, 'var(--series-1)', groupLabel(cmpA) + ' · n = ' + a.length + ' · DT = ' + fmt(da.sampSd, 2));
+    y += 6;
+    y += drawDotStrip(svg, b, o, sx, binW, binPx, y, 'var(--series-2)', groupLabel(cmpB) + ' · n = ' + b.length + ' · DT = ' + fmt(db.sampSd, 2));
+    const ticks = o.discrete && (dom[1] - dom[0]) <= 12 ? (function(){ const t = []; for (let v = dom[0]; v <= dom[1]; v++) t.push(v); return t; })() : niceTicks(dom[0], dom[1], Math.max(3, Math.floor(plotW / 55)));
+    ticks.forEach(function(v){ svgText(svg, sx(v), y + 10, valFmt(v, o), { 'text-anchor':'middle' }); });
+    const h = y + 16;
+    svg.setAttribute('viewBox', '0 0 ' + width + ' ' + h); svg.setAttribute('height', h);
+    chart.appendChild(svg);
+    const ba = boxStats(a), bb = boxStats(b);
+    const line = function(lbl, va, vb){ return '<tr><td><b>' + lbl + '</b></td><td class="num">' + va + '</td><td class="num">' + vb + '</td></tr>'; };
+    table.innerHTML = '<table class="freq-table" style="margin-top:6px"><thead><tr><th>Medida</th><th class="num">' + esc(groupLabel(cmpA)) + '</th><th class="num">' + esc(groupLabel(cmpB)) + '</th></tr></thead><tbody>' +
+      line('Media (M)', fmt(ba.mean, 2) + o.unit, fmt(bb.mean, 2) + o.unit) +
+      line('Rango (R)', fmt(da.rango, o.dec) + o.unit, fmt(db.rango, o.dec) + o.unit) +
+      line('Varianza poblacional (σ², ÷ N)', fmt(da.popVar, 2), fmt(db.popVar, 2)) +
+      line('Desviación estándar poblacional (σ)', fmt(da.popSd, 2) + o.unit, fmt(db.popSd, 2) + o.unit) +
+      line('Desviación estándar muestral (s, ÷ n − 1)', fmt(da.sampSd, 2) + o.unit, fmt(db.sampSd, 2) + o.unit) +
+      '</tbody></table>';
+    const more = da.sampSd >= db.sampSd ? [cmpA, da, cmpB, db] : [cmpB, db, cmpA, da];
+    const ratio = more[3].sampSd ? more[1].sampSd / more[3].sampSd : null;
+    const meanGap = Math.abs(ba.mean - bb.mean), avgSd = (da.sampSd + db.sampSd) / 2 || 1;
+    let txt = 'Las medias se diferencian en <b>' + fmt(meanGap, 2) + o.unit + '</b>. ';
+    txt += ratio && ratio >= 1.15 ? 'El <b>' + esc(groupName(more[0])) + '</b> es más disperso: su DT es ' + fmt(ratio, 1) + ' veces la del ' + esc(groupName(more[2])) + '.' : 'Los dos grupos tienen una dispersión parecida.';
+    if (meanGap < 0.25 * avgSd && ratio && ratio >= 1.3) txt += ' <b>Media parecida, dispersión distinta</b>: como en el ejemplo de las redes sociales, la media sola no cuenta toda la historia.';
+    sent.style.display = ''; sent.innerHTML = txt;
+  }
+  function renderDispersionTab(rows){
+    const o = varMeta(), vals = dispValues(rows, varKey);
+    document.getElementById('dispTitle1').textContent = 'Cada persona respecto a la media — ' + o.label + ' (' + groupName(activeGroup) + ')';
     renderDispDots(document.getElementById('chartDispDots'), vals, o);
     renderBoxPlot(document.getElementById('chartDispBox'), vals, o);
     renderDispTable(document.getElementById('tableDisp'), vals, o);
-    renderGroupBoxes(document.getElementById('chartDispGroups'), key, o);
+    renderCompareGroups(o);
+    renderGroupBoxes(document.getElementById('chartDispGroups'), varKey, o);
   }
-  function populateDispSelector(){
-    const sel = document.getElementById('dispVar');
-    Object.keys(DISP_VARS).forEach(function(k){ const op = document.createElement('option'); op.value = k; op.textContent = DISP_VARS[k].label; sel.appendChild(op); });
-    sel.value = 'satisfaccion_general';
-    sel.addEventListener('change', function(){ hideTooltip(); renderDispersion(); });
+
+  // ==========================================================================
+  // 6 · FORMA: normal, asimetría y curtosis
+  // ==========================================================================
+  function shapeStats(values){
+    const n = values.length;
+    if (n < 4) return null;
+    const s = numericStats(values), m = s.mean, sd = s.sd;
+    if (!sd) return { n:n, constant:true };
+    let z3 = 0, z4 = 0;
+    values.forEach(function(v){ const z = (v - m) / sd; z3 += z * z * z; z4 += z * z * z * z; });
+    const skew = n / ((n - 1) * (n - 2)) * z3;
+    const kurt = n * (n + 1) / ((n - 1) * (n - 2) * (n - 3)) * z4 - 3 * (n - 1) * (n - 1) / ((n - 2) * (n - 3));
+    const ses = Math.sqrt(6 * n * (n - 1) / ((n - 2) * (n + 1) * (n + 3)));
+    const sek = 2 * ses * Math.sqrt((n * n - 1) / ((n - 3) * (n + 5)));
+    return { n:n, skew:skew, kurt:kurt, ses:ses, sek:sek, mean:m, median:s.median };
+  }
+  function renderRule(el, vals){
+    if (vals.length < 3) return emptyMsg(el, vals.length ? 'Se necesitan al menos 3 respuestas.' : null);
+    const s = numericStats(vals), m = s.mean, sd = s.sd, n = vals.length;
+    const w1 = vals.filter(function(v){ return Math.abs(v - m) <= sd; }).length / n * 100;
+    const w2 = vals.filter(function(v){ return Math.abs(v - m) <= 2 * sd; }).length / n * 100;
+    const row = function(lbl, obs, exp){
+      return '<div class="rule-row"><div class="rule-label">' + lbl + '</div><div class="rule-track"><div class="rule-fill" style="width:' + Math.min(100, obs).toFixed(1) + '%"></div><div class="rule-mark" style="left:' + exp + '%"></div></div>' +
+             '<div class="rule-txt">Observado: <b>' + fmt(obs, 0) + ' %</b> · Modelo normal: ≈ ' + exp + ' %</div></div>';
+    };
+    const ok = Math.abs(w1 - 68) <= 10 && Math.abs(w2 - 95) <= 5;
+    el.innerHTML = row('Entre M − 1 DT y M + 1 DT [' + fmt(m - sd, 2) + ', ' + fmt(m + sd, 2) + ']', w1, 68) +
+                   row('Entre M − 2 DT y M + 2 DT [' + fmt(m - 2 * sd, 2) + ', ' + fmt(m + 2 * sd, 2) + ']', w2, 95) +
+                   '<div class="cmp-sentence">' + (ok ? 'En este aspecto nuestros datos <b>se parecen bastante</b> al modelo normal.' : 'Nuestros datos <b>se alejan</b> del modelo normal en este aspecto.') +
+                   ' La línea roja marca lo esperado en una normal. Con pocas respuestas o escalas cortas (1–7) es habitual que no encaje del todo.</div>';
+  }
+  function renderShape(el, vals){
+    const sh = shapeStats(vals);
+    if (!sh) return emptyMsg(el, vals.length ? 'Se necesitan al menos 4 respuestas.' : null);
+    if (sh.constant){ el.innerHTML = '<div class="empty-msg">Todas las respuestas son iguales: no hay forma que describir.</div>'; return; }
+    const a = sh.skew, k = sh.kurt;
+    const aTag = Math.abs(a) < 0.5 ? 'aprox. simétrica' : a < 0 ? 'asimetría negativa' : 'asimetría positiva';
+    const aTxt = Math.abs(a) < 0.5 ? 'Los dos lados se parecen: no hay una cola claramente más larga.'
+               : a < 0 ? 'Cola hacia la <b>izquierda</b>: muchas puntuaciones altas y pocas bajas.' : 'Cola hacia la <b>derecha</b>: muchas puntuaciones bajas y pocas altas.';
+    const kTag = Math.abs(k) < 0.5 ? 'mesocúrtica' : k > 0 ? 'leptocúrtica' : 'platicúrtica';
+    const kTxt = Math.abs(k) < 0.5 ? 'Colas parecidas a las de la normal.'
+               : k > 0 ? 'Más peso en valores muy alejados de la media que en una normal.' : 'Menos valores extremos de lo que cabría esperar en una normal; distribución más «aplanada».';
+    el.innerHTML =
+      '<div class="shape-card"><span class="val">' + fmtSigned(a, 2) + '</span><span class="tag">' + aTag + '</span><div class="shape-name">Asimetría (EE = ' + fmt(sh.ses, 2) + ')</div><p>' + aTxt + ' El signo sigue la dirección de la cola.</p></div>' +
+      '<div class="shape-card"><span class="val">' + fmtSigned(k, 2) + '</span><span class="tag">' + kTag + '</span><div class="shape-name">Curtosis (exceso; EE = ' + fmt(sh.sek, 2) + ')</div><p>' + kTxt + ' Unos pocos valores muy alejados pueden influir mucho.</p></div>' +
+      '<p class="tile-note">Valores calculados como en SPSS y jamovi: en la normal, asimetría = 0 y exceso de curtosis = 0. Criterio orientativo: |valor| &lt; 0,5 ≈ como la normal. M = ' + fmt(sh.mean, 2) + ' · Mdn = ' + fmt(sh.median, 2) + '.</p>';
+  }
+  function renderForma(rows){
+    const o = varMeta(), vals = dispValues(rows, varKey), s = numericStats(vals);
+    document.getElementById('formaTitle').textContent = 'Histograma frente a la curva normal — ' + o.label + ' (' + groupName(activeGroup) + ')';
+    renderHist(document.getElementById('chartForma'), vals, o, {
+      minN:3, normal:true, bands:true, color:'var(--series-1)', axisCaption:captionFor(o), height:160,
+      marks: s && s.sd ? [{ v:s.mean - s.sd, label:'−1 DT' }, { v:s.mean, label:'M', strong:true }, { v:s.mean + s.sd, label:'+1 DT' }] : [],
+      legend:'<span class="legend-row-inline"><span class="legend-swatch" style="background:var(--series-1)"></span>datos observados</span><span class="legend-row-inline"><span class="legend-line" style="border-color:var(--ink-primary)"></span>curva normal teórica (misma M y DT)</span><span class="legend-row-inline"><span class="legend-swatch" style="background:#f6e3ae"></span>M ± 1 DT</span><span class="legend-row-inline"><span class="legend-swatch" style="background:#fdf6e3;border:1px solid #f1d58c"></span>M ± 2 DT</span>'
+    });
+    renderRule(document.getElementById('ruleBox'), vals);
+    renderShape(document.getElementById('shapeBox'), vals);
+  }
+
+  // ==========================================================================
+  // 7 · RELACIONES
+  // ==========================================================================
+  const CORR_VARS = ['b1_horas_estudio_imaginadas', 'b2_horas_estudio_reales', 'b3_fiestas_ultimo_mes', 'b4_horas_socializar',
+                     'satisfaccion_general', 'c1_coincide_con_lo_imaginado', 'c2_coincide_con_peliculas', 'c4_extranara_vida_universitaria'];
+  const CORR_SHORT = { b1_horas_estudio_imaginadas:'Horas imaginadas', b2_horas_estudio_reales:'Horas reales', b3_fiestas_ultimo_mes:'Fiestas',
+                       b4_horas_socializar:'Socializar', satisfaccion_general:'Satisfacción', c1_coincide_con_lo_imaginado:'Coincide imaginado',
+                       c2_coincide_con_peliculas:'Coincide películas', c4_extranara_vida_universitaria:'Extrañará' };
+  function pairPts(rows, a, b){
+    return rows.map(function(r){ return { x:DISP_VARS[a].get(r), y:DISP_VARS[b].get(r) }; }).filter(function(p){ return isFinite(p.x) && isFinite(p.y); });
+  }
+  function renderCorrMatrix(el, rows){
+    if (rows.length < 3) return emptyMsg(el, rows.length ? 'Se necesitan al menos 3 respuestas.' : null);
+    clearEl(el);
+    const k = CORR_VARS.length, width = widthOf(el, 320);
+    const labelW = Math.min(124, width * 0.3), cell = Math.min(58, (width - labelW - 4) / k), topH = 78;
+    const W = labelW + k * cell, H = topH + k * cell + 4;
+    const svg = svgEl('svg', { viewBox:'0 0 ' + W + ' ' + H, width:W, height:H, style:'max-width:100%;height:auto;display:block;' });
+    CORR_VARS.forEach(function(v, i){
+      svgText(svg, labelW - 6, topH + i * cell + cell / 2 + 3.5, CORR_SHORT[v], { 'text-anchor':'end', 'font-size':10.5, fill:'var(--ink-secondary)' });
+      const cx = labelW + i * cell + cell / 2;
+      const t = svgText(svg, cx, topH - 6, CORR_SHORT[v], { 'font-size':10.5, fill:'var(--ink-secondary)' });
+      t.setAttribute('transform', 'rotate(-40 ' + cx + ' ' + (topH - 6) + ')');
+    });
+    CORR_VARS.forEach(function(vy, i){
+      CORR_VARS.forEach(function(vx, j){
+        const x = labelW + j * cell, y = topH + i * cell;
+        if (i === j){
+          svg.appendChild(svgEl('rect', { x:x + 1, y:y + 1, width:cell - 2, height:cell - 2, rx:4, fill:'#f0efeb' }));
+          return;
+        }
+        const pts = pairPts(rows, vx, vy), r = pearsonR(pts.map(function(p){ return p.x; }), pts.map(function(p){ return p.y; }));
+        const a = r == null ? 0 : Math.abs(r);
+        const fill = r == null ? '#fafafa' : r >= 0 ? 'rgba(42,120,214,' + (0.08 + a * 0.85).toFixed(2) + ')' : 'rgba(235,104,52,' + (0.08 + a * 0.85).toFixed(2) + ')';
+        const sel = (vx === scatX && vy === scatY);
+        const rect = svgEl('rect', { x:x + 1, y:y + 1, width:cell - 2, height:cell - 2, rx:4, fill:fill, stroke:sel ? 'var(--ink-primary)' : 'none', 'stroke-width':2, style:'cursor:pointer;' });
+        hover(rect, function(){ return '<b>' + CORR_SHORT[vx] + '</b> × <b>' + CORR_SHORT[vy] + '</b><br>r = ' + (r == null ? '—' : fmt(r, 2) + ' (' + describeR(r) + ')') + ' · n = ' + pts.length + '<br><i>Clic para ver el gráfico</i>'; });
+        rect.addEventListener('click', function(){ scatX = vx; scatY = vy; hideTooltip(); renderRelaciones(window.currentGroupRows || []); });
+        svg.appendChild(rect);
+        if (cell >= 30) svgText(svg, x + cell / 2, y + cell / 2 + 3.5, r == null ? '—' : fmt(r, 2), { 'text-anchor':'middle', 'font-size':cell >= 44 ? 11 : 9.5, fill:a > 0.55 ? '#fff' : 'var(--ink-primary)', 'pointer-events':'none' });
+      });
+    });
+    el.appendChild(svg);
+    el.insertAdjacentHTML('beforeend', '<div class="chart-legend-inline"><span class="legend-row-inline"><span class="legend-swatch" style="background:rgba(235,104,52,.85)"></span>r negativa</span><span class="legend-row-inline"><span class="legend-swatch" style="background:#fafafa;border:1px solid var(--border)"></span>r ≈ 0</span><span class="legend-row-inline"><span class="legend-swatch" style="background:rgba(42,120,214,.85)"></span>r positiva</span><span class="legend-row-inline">Celda con borde = la que se ve abajo</span></div>');
+  }
+  function axisDom(vals, o){
+    if (o.min != null) return [o.min - 0.5, o.max + 0.5];
+    const lo = Math.min(0, Math.min.apply(null, vals)), hi = Math.max.apply(null, vals);
+    return [lo, hi + Math.max(1, (hi - lo) * 0.06)];
+  }
+  function axisTicks(o, d, target){
+    if (o.min != null){ const st = Math.max(1, Math.ceil((o.max - o.min + 1) / target)); const t = []; for (let v = o.min; v <= o.max; v += st) t.push(v); return t; }
+    return niceTicks(d[0], d[1], target);
+  }
+  function renderScatterXY(el, pts, ox, oy){
+    if (pts.length < 3){ emptyMsg(el, pts.length ? 'Se necesitan al menos 3 respuestas con ambas variables.' : null); return null; }
+    clearEl(el);
+    const width = widthOf(el, 280), height = 260, padL = 40, padR = 12, padT = 10, padB = 40;
+    const plotW = width - padL - padR, plotH = height - padT - padB;
+    const xs = pts.map(function(p){ return p.x; }), ys = pts.map(function(p){ return p.y; });
+    const dx = axisDom(xs, ox), dy = axisDom(ys, oy);
+    const sx = function(v){ return padL + (v - dx[0]) / (dx[1] - dx[0]) * plotW; };
+    const sy = function(v){ return padT + plotH - (v - dy[0]) / (dy[1] - dy[0]) * plotH; };
+    const svg = svgEl('svg', { viewBox:'0 0 ' + width + ' ' + height, width:'100%', height:height });
+    const cid = 'clip' + Math.random().toString(36).slice(2, 8);
+    const defs = svgEl('defs'), cp = svgEl('clipPath', { id:cid });
+    cp.appendChild(svgEl('rect', { x:padL, y:padT, width:plotW, height:plotH })); defs.appendChild(cp); svg.appendChild(defs);
+    axisTicks(oy, dy, Math.max(3, Math.floor(plotH / 32))).forEach(function(v){
+      svg.appendChild(svgEl('line', { x1:padL, x2:padL + plotW, y1:sy(v), y2:sy(v), stroke:'var(--gridline)' }));
+      svgText(svg, padL - 6, sy(v) + 3, valFmt(v, oy), { 'text-anchor':'end', 'font-size':9 });
+    });
+    axisTicks(ox, dx, Math.max(3, Math.floor(plotW / 55))).forEach(function(v){ svgText(svg, sx(v), padT + plotH + 13, valFmt(v, ox), { 'text-anchor':'middle', 'font-size':9 }); });
+    svg.appendChild(svgEl('line', { x1:padL, x2:padL + plotW, y1:padT + plotH, y2:padT + plotH, stroke:'var(--baseline)' }));
+    const r = pearsonR(xs, ys);
+    if (r !== null){
+      const reg = linearRegression(xs, ys);
+      svg.appendChild(svgEl('line', { x1:sx(dx[0]), y1:sy(reg.slope * dx[0] + reg.intercept), x2:sx(dx[1]), y2:sy(reg.slope * dx[1] + reg.intercept), stroke:'var(--series-2)', 'stroke-width':2.2, 'clip-path':'url(#' + cid + ')' }));
+    }
+    const intX = xs.every(Number.isInteger), intY = ys.every(Number.isInteger);
+    pts.forEach(function(p, i){
+      const jx = intX ? (((i * 53) % 13) / 13 - 0.5) * 0.4 : 0, jy = intY ? (((i * 37) % 17) / 17 - 0.5) * 0.45 : 0;
+      const dot = svgEl('circle', { cx:sx(p.x + jx), cy:sy(p.y + jy), r:4, fill:'var(--series-1)', 'fill-opacity':0.6, stroke:'#fff', 'stroke-width':1, style:'cursor:pointer;' });
+      hover(dot, function(){ return esc(ox.label) + ': <b>' + valFmt(p.x, ox) + '</b><br>' + esc(oy.label) + ': <b>' + valFmt(p.y, oy) + '</b>'; });
+      svg.appendChild(dot);
+    });
+    svgText(svg, padL + plotW / 2, height - 6, ox.label, { 'text-anchor':'middle', 'font-size':10.5, fill:'var(--ink-secondary)' });
+    const yl = svgText(svg, 11, padT + plotH / 2, oy.label, { 'text-anchor':'middle', 'font-size':10.5, fill:'var(--ink-secondary)' });
+    yl.setAttribute('transform', 'rotate(-90 11 ' + (padT + plotH / 2) + ')');
+    el.appendChild(svg);
+    return r;
+  }
+  function populateScatterSelects(){
+    const sx = document.getElementById('scatX'), sy = document.getElementById('scatY');
+    [sx, sy].forEach(function(sel){ CORR_VARS.forEach(function(k){ const op = document.createElement('option'); op.value = k; op.textContent = DISP_VARS[k].label; sel.appendChild(op); }); });
+    sx.addEventListener('change', function(){ scatX = sx.value; renderRelaciones(window.currentGroupRows || []); });
+    sy.addEventListener('change', function(){ scatY = sy.value; renderRelaciones(window.currentGroupRows || []); });
+  }
+  function renderRelaciones(rows){
+    renderCorrMatrix(document.getElementById('chartCorrMatrix'), rows);
+    document.getElementById('scatX').value = scatX; document.getElementById('scatY').value = scatY;
+    const pts = pairPts(rows, scatX, scatY);
+    const r = renderScatterXY(document.getElementById('chartScatter'), pts, DISP_VARS[scatX], DISP_VARS[scatY]);
+    document.getElementById('rScat').innerHTML = (r == null) ? 'r = — <span class="corr-desc">(datos insuficientes)</span>' : 'r = ' + fmt(r, 2) + ' <span class="corr-desc">· ' + describeR(r) + ' · n = ' + pts.length + '</span>';
+    const sexGroups = categoriesFor(rows, 'sexo').map(function(s, i){
+      return { label:s, color:CATEGORICAL_COLORS[i % 9], values:nums(rows.filter(function(r){ return r.sexo === s; }), 'b2_horas_estudio_reales') };
+    });
+    renderDensityChart(document.getElementById('chartDensitySexo'), sexGroups);
+  }
+
+  // ==========================================================================
+  // Controles: calculadora, vista, comparación, zoom, teclado
+  // ==========================================================================
+  function setupControls(){
+    ['calcVal', 'calcK'].forEach(function(id){ document.getElementById(id).addEventListener('input', updateCalc); });
+    document.querySelectorAll('#posView button').forEach(function(b){
+      b.addEventListener('click', function(){
+        posView = b.dataset.v;
+        document.querySelectorAll('#posView button').forEach(function(x){ x.classList.toggle('on', x === b); });
+        renderActive();
+      });
+    });
+    document.getElementById('cmpA').addEventListener('change', function(e){ cmpA = e.target.value; if (cmpA === cmpB) cmpB = null; renderActive(); });
+    document.getElementById('cmpB').addEventListener('change', function(e){ cmpB = e.target.value; if (cmpA === cmpB) cmpA = null; renderActive(); });
+    const bz = document.getElementById('btnZoom');
+    bz.addEventListener('click', function(){
+      zoomLevel = zoomLevel >= 1.3 ? 1 : Math.round((zoomLevel + 0.15) * 100) / 100;
+      document.querySelector('main').style.zoom = zoomLevel;
+      bz.textContent = 'Tamaño ' + Math.round(zoomLevel * 100) + '%';
+      renderActive();
+    });
+    document.getElementById('btnFull').addEventListener('click', toggleFull);
+    document.addEventListener('keydown', function(e){
+      if (e.target && e.target.closest && e.target.closest('input, select, textarea')) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const i = SECTIONS.findIndex(function(s){ return s.num === e.key; });
+      if (i > -1){ setSection(SECTIONS[i].id); e.preventDefault(); return; }
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft'){
+        const cur = SECTIONS.findIndex(function(s){ return s.id === activeSection; });
+        const nx = Math.max(0, Math.min(SECTIONS.length - 1, cur + (e.key === 'ArrowRight' ? 1 : -1)));
+        if (nx !== cur){ setSection(SECTIONS[nx].id); e.preventDefault(); }
+      }
+      if (e.key === 'f' || e.key === 'F') toggleFull();
+    });
+    window.addEventListener('hashchange', function(){ const h = location.hash.slice(1); if (h && h !== activeSection) setSection(h); });
+  }
+  function toggleFull(){
+    try {
+      if (!document.fullscreenElement){ if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen(); }
+      else if (document.exitFullscreen) document.exitFullscreen();
+    } catch(e){}
   }
 
   // ==========================================================================
@@ -1417,7 +2190,9 @@
     return out;
   }
   function generarDatosEjemplo(grupo, n){
-    const rows = [];
+    const rows = [], start = Date.now() - 45 * 60e3;
+    const L = 'ABCDEFGHIJLMNOPRSTV';
+    const pool = Array.from({ length:Math.ceil(n / 5) }, function(){ return L[randInt(0, L.length - 1)] + L[randInt(0, L.length - 1)] + String(randInt(10, 99)); });
     for (let i = 0; i < n; i++){
       const b1 = clamp(Math.round(14 + gauss() * 5), 2, 30);
       const b2 = clamp(Math.round(b1 - 2 + gauss() * 4), 0, 40);
@@ -1425,6 +2200,7 @@
       const sat = clamp(Math.round(4 + 0.12 * (b2 - 10) + 0.12 * (b3 - 5) + gauss() * 1.1), 1, 7);
       const trio = pickRankedTrio(FIELD_META.a4_mas_importante.order, [0.26, 0.05, 0.22, 0.15, 0.08, 0.08, 0.06, 0.05, 0.05]);
       rows.push({
+        timestamp:new Date(start + Math.pow(Math.random(), 0.6) * 44 * 60e3).toISOString(), encuestador:pool[Math.floor(i / 5)],
         grupo:grupo, sexo:randomChoice(FIELD_META.sexo.order, [0.46, 0.46, 0.08]), a1:randomChoice(FIELD_META.a1.order, [0.75, 0.25]),
         a2:randomChoice(FIELD_META.a2.order, [0.16, 0.12, 0.1, 0.14, 0.12, 0.2, 0.1, 0.06]), a3:randomChoice(FIELD_META.a3.order, [0.22, 0.22, 0.2, 0.18, 0.1, 0.03, 0.05]),
         a4_mas_importante:trio[0] || '', a4_segunda:trio[1] || '', a4_tercera:trio[2] || '',
@@ -1505,7 +2281,12 @@
   setInterval(function(){ if (mode === 'live') updateStatus(); }, 5000);
 
   populateContingencySelectors();
-  populateDispSelector();
+  populateVarSelects();
+  populateScatterSelects();
+  setupControls();
+  (function(){ const h = (params.get('tab') || location.hash.slice(1) || '').toLowerCase(); if (SECTIONS.some(function(s){ return s.id === h; })) activeSection = h; })();
+  renderSectionTabs();
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.toggle('active', p.id === 'panel-' + activeSection); });
   renderTabs();
   renderGroup(activeGroup);
   updateStatus();
